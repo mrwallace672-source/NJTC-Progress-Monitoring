@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>NJTC Progress Journal</title>
+    <title>NJTC Progress Journal | Premium Edition</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,9 +19,9 @@
 
     <!-- Tab Navigation -->
     <nav class="tabs">
-        <button class="tab-btn active" data-tab="new-entry">New Entry</button>
-        <button class="tab-btn" data-tab="my-history">My History</button>
-        <button class="tab-btn" data-tab="scholar-lookup">Scholar Lookup</button>
+        <button class="tab-btn active" data-tab="new-entry">📝 New Entry</button>
+        <button class="tab-btn" data-tab="shared-history">🔐 Shared History</button>
+        <button class="tab-btn" data-tab="scholar-lookup">👤 Scholar Lookup</button>
     </nav>
 
     <!-- Main Content Container -->
@@ -29,10 +29,11 @@
         <!-- NEW ENTRY VIEW -->
         <section id="new-entry" class="tab-content active">
             <div class="card">
-                <h2>New Journal Entry</h2>
+                <h2>📝 New Session Entry</h2>
+                <p class="subtitle">Record today's tutoring session feedback</p>
                 
                 <form id="entry-form">
-                    <!-- Site Selection -->
+                    <!-- Site Selection - EXACT MATCH TO GOOGLE FORM -->
                     <div class="form-group">
                         <label for="site">Site *</label>
                         <select id="site" required>
@@ -44,7 +45,8 @@
                             <option value="Global Leadership Academy">Global Leadership Academy</option>
                             <option value="Greenwood">Greenwood</option>
                             <option value="Grice Middle School">Grice Middle School</option>
-                            <option value="KlocknerKuser">KlocknerKuser</option>
+                            <option value="Klockner">Klockner</option>
+                            <option value="Kuser">Kuser</option>
                             <option value="LEA - iLearn Bergen ES">LEA - iLearn Bergen ES</option>
                             <option value="LEA - iLearn Bergen MS">LEA - iLearn Bergen MS</option>
                             <option value="LEA - iLearn Clifton ES">LEA - iLearn Clifton ES</option>
@@ -64,68 +66,70 @@
                         </select>
                     </div>
 
-                    <!-- Staff Role -->
+                    <!-- Staff Role - EXACT MATCH TO GOOGLE FORM -->
                     <div class="form-group">
                         <label for="staffRole">Staff Role *</label>
                         <select id="staffRole" required>
                             <option value="">Select Role</option>
                             <option value="Tutor">Tutor</option>
-                            <option value="Lead Tutor">Lead Tutor</option>
-                            <option value="Site Leader">Site Leader</option>
-                            <option value="Site Coordinator">Site Coordinator</option>
-                            <option value="Program Manager">Program Manager</option>
+                            <option value="SC / IC">SC / IC</option>
+                            <option value="Dual Role">Dual Role</option>
+                            <option value="Substitute Tutor">Substitute Tutor</option>
+                            <option value="Program Team Manager">Program Team Manager</option>
                         </select>
                     </div>
 
-                    <!-- Staff PIN -->
+                    <!-- Staff PIN - Shared Access Key -->
                     <div class="form-group">
                         <label for="staffPin">Staff PIN *</label>
-                        <input type="text" id="staffPin" placeholder="Enter your PIN" required>
+                        <input type="text" id="staffPin" placeholder="Enter your shared PIN" required>
+                        <small class="hint">🔐 This PIN provides secure access to shared journal history</small>
                     </div>
 
                     <!-- Scholar Identifier -->
                     <div class="form-group">
                         <label for="scholarId">Scholar Identifier *</label>
-                        <input type="text" id="scholarId" placeholder="e.g., SC123 or initials" required>
-                        <small class="hint">⚠️ Do not use full student names. Use ID or initials only.</small>
+                        <input type="text" id="scholarId" placeholder="e.g., 1234567890 or SC123" required>
+                        <small class="hint">⚠️ Use student ID or initials - no full names</small>
                     </div>
 
-                    <!-- Skill Area -->
+                    <!-- Skill Area - EXACT MATCH TO GOOGLE FORM -->
                     <div class="form-group">
-                        <label for="skillArea">Skill Area *</label>
+                        <label for="skillArea">Skill Area (high-level) *</label>
                         <select id="skillArea" required>
                             <option value="">Select Skill Area</option>
-                            <option value="Reading Comprehension">Reading Comprehension</option>
-                            <option value="Phonics & Decoding">Phonics & Decoding</option>
-                            <option value="Fluency">Fluency</option>
-                            <option value="Writing">Writing</option>
-                            <option value="Math Computation">Math Computation</option>
-                            <option value="Math Problem Solving">Math Problem Solving</option>
-                            <option value="Executive Function">Executive Function</option>
-                            <option value="Social-Emotional">Social-Emotional</option>
+                            <option value="ELA - Phonological Awareness">ELA - Phonological Awareness</option>
+                            <option value="ELA - Vocabulary">ELA - Vocabulary</option>
+                            <option value="ELA - High Frequency Words">ELA - High Frequency Words</option>
+                            <option value="Comprehension - Literature">Comprehension - Literature</option>
+                            <option value="Comprehension - Informational">Comprehension - Informational</option>
+                            <option value="Math - Number and Operations">Math - Number and Operations</option>
+                            <option value="Math - Algebra and Algebraic Thinking">Math - Algebra and Algebraic Thinking</option>
+                            <option value="Math - Geometry">Math - Geometry</option>
+                            <option value="Math - Measurement and Data">Math - Measurement and Data</option>
                         </select>
                     </div>
 
                     <!-- Specific Skill Target -->
                     <div class="form-group">
                         <label for="specificSkillTarget">Specific Skill Target</label>
-                        <input type="text" id="specificSkillTarget" placeholder="e.g., Main idea identification">
+                        <input type="text" id="specificSkillTarget" placeholder="e.g., CVC blending, addition facts">
                     </div>
 
-                    <!-- Evidence Type -->
+                    <!-- Evidence Type - EXACT MATCH TO GOOGLE FORM -->
                     <div class="form-group">
                         <label for="evidenceType">Evidence Type *</label>
                         <select id="evidenceType" required>
                             <option value="">Select Evidence Type</option>
-                            <option value="Work Sample">Work Sample</option>
+                            <option value="Exit Ticket">Exit Ticket</option>
+                            <option value="Oral reading">Oral reading</option>
+                            <option value="Worksheet">Worksheet</option>
                             <option value="Observation">Observation</option>
-                            <option value="Assessment">Assessment</option>
-                            <option value="Student Demonstration">Student Demonstration</option>
-                            <option value="Discussion">Discussion</option>
+                            <option value="Mini-assessment">Mini-assessment</option>
                         </select>
                     </div>
 
-                    <!-- Performance Rating -->
+                    <!-- Performance Rating - EXACT MATCH TO GOOGLE FORM -->
                     <div class="form-group">
                         <label for="performanceRating">Performance Rating *</label>
                         <div class="rating-buttons">
@@ -139,13 +143,13 @@
 
                     <!-- Optional Note -->
                     <div class="form-group">
-                        <label for="optionalNote">Notes (Optional)</label>
-                        <textarea id="optionalNote" rows="3" placeholder="Additional observations or context..."></textarea>
+                        <label for="optionalNote">Session Notes (Optional)</label>
+                        <textarea id="optionalNote" rows="4" placeholder="What happened in the session? Key observations, challenges, wins..."></textarea>
                     </div>
 
                     <!-- Image Upload -->
                     <div class="form-group">
-                        <label>Evidence Image (Optional)</label>
+                        <label>Evidence Artifact (Optional)</label>
                         <div class="image-upload">
                             <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/jpg" style="display: none;">
                             <button type="button" id="uploadBtn" class="btn-secondary">
@@ -153,28 +157,29 @@
                             </button>
                             <div id="imagePreview" class="image-preview"></div>
                         </div>
+                        <small class="hint">📁 Images are saved to "NJTC Progress Evidence" folder in Google Drive</small>
                     </div>
 
                     <!-- Submit Button -->
                     <button type="submit" id="submitBtn" class="btn-primary">
-                        <span class="btn-text">Save Entry</span>
+                        <span class="btn-text">💾 Save Session Entry</span>
                         <span class="btn-loader" style="display: none;">⏳ Saving...</span>
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- MY HISTORY VIEW -->
-        <section id="my-history" class="tab-content">
+        <!-- SHARED HISTORY VIEW (PIN-BASED ACCESS) -->
+        <section id="shared-history" class="tab-content">
             <div class="card">
-                <h2>My Recent Entries</h2>
-                <p class="subtitle">Last 10 entries you've submitted</p>
+                <h2>🔐 Shared Journal History</h2>
+                <p class="subtitle">PIN-based secure workspace for Tutors & Dual Roles</p>
                 
                 <div id="historyContent">
-                    <div class="loading-skeleton">
-                        <div class="skeleton-card"></div>
-                        <div class="skeleton-card"></div>
-                        <div class="skeleton-card"></div>
+                    <div class="empty-state">
+                        <span class="empty-icon">🔐</span>
+                        <p><strong>Secure Access</strong></p>
+                        <p>Submit an entry to establish your PIN credentials</p>
                     </div>
                 </div>
             </div>
@@ -183,13 +188,14 @@
         <!-- SCHOLAR LOOKUP VIEW -->
         <section id="scholar-lookup" class="tab-content">
             <div class="card">
-                <h2>Scholar Progress Lookup</h2>
+                <h2>👤 Scholar Progress Lookup</h2>
+                <p class="subtitle">Track individual student progress across all sessions</p>
                 
                 <div class="form-group">
                     <label for="lookupScholarId">Scholar Identifier</label>
                     <div class="search-input">
                         <input type="text" id="lookupScholarId" placeholder="Enter scholar ID or initials">
-                        <button id="lookupBtn" class="btn-primary">Search</button>
+                        <button id="lookupBtn" class="btn-primary">🔍 Search</button>
                     </div>
                 </div>
 
@@ -204,7 +210,7 @@
                 <div id="scholarContent">
                     <div class="empty-state">
                         <span class="empty-icon">🔍</span>
-                        <p>Enter a scholar identifier to view their progress history</p>
+                        <p>Enter a scholar identifier to view their complete progress history</p>
                     </div>
                 </div>
             </div>
