@@ -1,6 +1,6 @@
 /**
  * NJTC Progress Journal - Application Logic
- * Premium Mobile-First Design
+ * 100% ALIGNED WITH BACKEND
  * Version: 1.0 Production
  */
 
@@ -10,7 +10,7 @@
 
 const CONFIG = {
     API_BASE: 'https://script.google.com/macros/s/AKfycbwL5vkMmjGB4fjPBUyw6xD9OvB9CymjNPV5wIRXcSuEDBGWPKmKku0YIe43zA8mHZk3/exec',
-    NJTC_KEY: 'NJTC_INTERNAL_2025'
+    SHARED_KEY: 'NJTC_INTERNAL_2025'
 };
 
 // ==========================================
@@ -94,8 +94,8 @@ function initializeRatingButtons() {
 
     ratingButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent any form submission
-            e.stopPropagation(); // Stop event bubbling
+            e.preventDefault();
+            e.stopPropagation();
             
             // Remove selected class from all buttons
             ratingButtons.forEach(b => b.classList.remove('selected'));
@@ -107,23 +107,14 @@ function initializeRatingButtons() {
             state.selectedRating = btn.dataset.rating;
             document.getElementById('performanceRating').value = state.selectedRating;
             
-            // Premium visual feedback with animation
+            // Visual feedback
             btn.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 btn.style.transform = 'scale(1)';
             }, 150);
+            
+            console.log('Rating selected:', state.selectedRating);
         });
-        
-        // Add touch feedback for mobile
-        btn.addEventListener('touchstart', () => {
-            btn.style.transform = 'scale(0.95)';
-        }, { passive: true });
-        
-        btn.addEventListener('touchend', () => {
-            setTimeout(() => {
-                btn.style.transform = 'scale(1)';
-            }, 150);
-        }, { passive: true });
     });
 }
 
@@ -200,8 +191,9 @@ async function submitEntry() {
         btnText.style.display = 'none';
         btnLoader.style.display = 'inline';
 
-        // Gather form data
+        // Gather form data - ALIGNED WITH BACKEND
         const data = {
+            key: CONFIG.SHARED_KEY,  // Backend expects 'key' in data
             site: document.getElementById('site').value,
             staffRole: document.getElementById('staffRole').value,
             staffPin: document.getElementById('staffPin').value,
@@ -220,11 +212,13 @@ async function submitEntry() {
             data.imageMimeType = state.imageFile.type;
         }
 
+        console.log('Submitting entry:', data);
+
         // Save to localStorage
         saveFormData(data);
 
-        // Submit to backend
-        const response = await fetch(`${CONFIG.API_BASE}?path=submit&key=${CONFIG.NJTC_KEY}`, {
+        // Submit to backend - NO key in URL, key is in POST body
+        const response = await fetch(CONFIG.API_BASE, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -233,6 +227,7 @@ async function submitEntry() {
         });
 
         const result = await response.json();
+        console.log('Submission result:', result);
 
         if (result.status === 'success') {
             showToast('✓ Journal entry saved successfully!', 'success');
@@ -253,7 +248,7 @@ async function submitEntry() {
 
     } catch (error) {
         console.error('Submission error:', error);
-        showToast('Error saving entry. Please check connection and try again.', 'error');
+        showToast('Error saving entry: ' + error.message, 'error');
     } finally {
         // Re-enable submit button
         submitBtn.disabled = false;
@@ -290,6 +285,8 @@ async function loadMyHistory() {
     const historyContent = document.getElementById('historyContent');
     const saved = getSavedFormData();
 
+    console.log('Loading history for:', saved);
+
     if (!saved || !saved.site || !saved.staffPin) {
         historyContent.innerHTML = `
             <div class="empty-state">
@@ -310,10 +307,17 @@ async function loadMyHistory() {
     `;
 
     try {
-        const response = await fetch(
-            `${CONFIG.API_BASE}?path=history&key=${CONFIG.NJTC_KEY}&site=${encodeURIComponent(saved.site)}&staffPin=${encodeURIComponent(saved.staffPin)}`
-        );
+        // ALIGNED: key in URL, path in URL
+        const url = `${CONFIG.API_BASE}?key=${encodeURIComponent(CONFIG.SHARED_KEY)}&path=history&site=${encodeURIComponent(saved.site)}&staffPin=${encodeURIComponent(saved.staffPin)}`;
+        console.log('Fetching history:', url);
+        
+        const response = await fetch(url);
         const result = await response.json();
+        console.log('History result:', result);
+
+        if (result.error) {
+            throw new Error(result.error);
+        }
 
         if (result.entries && result.entries.length > 0) {
             displayHistoryEntries(result.entries);
@@ -330,7 +334,7 @@ async function loadMyHistory() {
         historyContent.innerHTML = `
             <div class="empty-state">
                 <span class="empty-icon">⚠️</span>
-                <p>Error loading history. Please check your connection and try again.</p>
+                <p>Error loading history: ${error.message}</p>
             </div>
         `;
     }
@@ -394,6 +398,8 @@ async function loadScholarHistory(scholarId) {
     const scholarContent = document.getElementById('scholarContent');
     const saved = getSavedFormData();
 
+    console.log('Loading scholar history for:', scholarId, 'at site:', saved.site);
+
     if (!saved || !saved.site) {
         showToast('Please submit an entry first to set your site', 'error');
         return;
@@ -408,10 +414,17 @@ async function loadScholarHistory(scholarId) {
     `;
 
     try {
-        const response = await fetch(
-            `${CONFIG.API_BASE}?path=scholarHistory&key=${CONFIG.NJTC_KEY}&site=${encodeURIComponent(saved.site)}&scholarId=${encodeURIComponent(scholarId)}`
-        );
+        // ALIGNED: key in URL, path in URL
+        const url = `${CONFIG.API_BASE}?key=${encodeURIComponent(CONFIG.SHARED_KEY)}&path=scholarHistory&site=${encodeURIComponent(saved.site)}&scholarId=${encodeURIComponent(scholarId)}`;
+        console.log('Fetching scholar history:', url);
+        
+        const response = await fetch(url);
         const result = await response.json();
+        console.log('Scholar history result:', result);
+
+        if (result.error) {
+            throw new Error(result.error);
+        }
 
         state.scholarHistoryData = result.entries || [];
 
@@ -430,7 +443,7 @@ async function loadScholarHistory(scholarId) {
         scholarContent.innerHTML = `
             <div class="empty-state">
                 <span class="empty-icon">⚠️</span>
-                <p>Error loading scholar history. Please try again.</p>
+                <p>Error loading scholar history: ${error.message}</p>
             </div>
         `;
     }
@@ -614,4 +627,4 @@ window.removeImage = removeImage;
 
 // Production ready indicator
 console.log('%c✓ NJTC Progress Journal v1.0', 'color: #003f87; font-weight: bold; font-size: 14px;');
-console.log('%cPremium Edition - Built by Impact Solutions Group', 'color: #f0a500; font-size: 12px;');
+console.log('%c100% Aligned - All Systems Connected', 'color: #10b981; font-size: 12px;');
