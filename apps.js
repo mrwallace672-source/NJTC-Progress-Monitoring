@@ -8,8 +8,8 @@
 // ==========================================
 
 const CONFIG = {
-    API_BASE: 'PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE', // e.g., 'https://script.google.com/macros/s/ABC123.../exec'
-    NJTC_KEY: 'PASTE_YOUR_SHARED_KEY_HERE' // Must match the key in Apps Script
+API_BASE: 'https://script.google.com/macros/s/AKfycbwL5vkMmjGB4fjPBUyw6xD9OvB9CymjNPV5wIRXcSuEDBGWPKmKku0YIe43zA8mHZk3/exec',
+NJTC_KEY: 'NJTC_INTERNAL_2025'
 };
 
 // ==========================================
