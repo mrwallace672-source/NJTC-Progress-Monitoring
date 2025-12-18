@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJTC Progress Journal</title>
+    <title>NJTC Progress Journal | Premium Secure Edition</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: #0f172a;
             min-height: 100vh;
         }
@@ -18,7 +18,10 @@
         .header {
             background: linear-gradient(135deg, #003f87 0%, #002d5f 100%);
             padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .header h1 {
@@ -26,47 +29,47 @@
             font-size: 1.8rem;
             text-align: center;
             margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
 
-        /* ROLE SELECTION */
-        .role-selection {
+        /* SELECTION SCREENS */
+        .selection-screen {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 3rem 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
             text-align: center;
         }
 
-        .role-selection h2 {
+        .selection-screen h2 {
             color: #003f87;
             margin-bottom: 1rem;
-            font-size: 1.8rem;
+            font-size: 2rem;
         }
 
-        .role-selection p {
+        .selection-screen p {
             color: #64748b;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             font-size: 1.1rem;
         }
 
-        .role-buttons {
+        .selection-buttons {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
+            gap: 1.5rem;
         }
 
-        .role-btn {
-            padding: 2rem 1rem;
+        .selection-btn {
+            padding: 2.5rem 1.5rem;
             background: white;
             border: 3px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 16px;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 1.1rem;
@@ -74,15 +77,15 @@
             color: #003f87;
         }
 
-        .role-btn:hover {
+        .selection-btn:hover {
             border-color: #003f87;
-            background: #f0f9ff;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,63,135,0.2);
+            background: linear-gradient(135deg, rgba(0,63,135,0.05) 0%, rgba(240,165,0,0.05) 100%);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0,63,135,0.2);
         }
 
-        .role-icon {
-            font-size: 3rem;
+        .selection-icon {
+            font-size: 3.5rem;
             display: block;
             margin-bottom: 1rem;
         }
@@ -94,28 +97,75 @@
 
         .main-interface.active {
             display: block;
+            animation: slideIn 0.4s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BREADCRUMB */
+        .breadcrumb {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .breadcrumb-path {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .breadcrumb-path strong {
+            color: #003f87;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            padding: 0.6rem 1.2rem;
+            background: #003f87;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: #002d5f;
+            transform: translateX(-4px);
         }
 
         /* TABS */
         .tabs {
             background: white;
-            border-radius: 12px 12px 0 0;
+            border-radius: 16px 16px 0 0;
             display: flex;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
         }
 
         .tab {
             flex: 1;
-            padding: 1.2rem;
+            min-width: 150px;
+            padding: 1.3rem;
             background: white;
             border: none;
-            border-bottom: 3px solid transparent;
+            border-bottom: 4px solid transparent;
             color: #64748b;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .tab:hover {
@@ -126,15 +176,16 @@
         .tab.active {
             color: #003f87;
             border-bottom-color: #f0a500;
-            background: rgba(0,63,135,0.05);
+            background: rgba(0,63,135,0.08);
         }
 
         /* CONTENT */
         .content {
             background: white;
-            border-radius: 0 0 12px 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 0 0 16px 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            min-height: 400px;
         }
 
         .tab-pane {
@@ -147,8 +198,8 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* FORM */
@@ -160,24 +211,25 @@
             display: block;
             font-weight: 600;
             color: #003f87;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.6rem;
             font-size: 0.95rem;
         }
 
         input, select, textarea {
             width: 100%;
-            padding: 0.85rem;
+            padding: 0.9rem 1rem;
             border: 2px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
             font-family: inherit;
             transition: all 0.2s;
+            background: white;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #003f87;
-            box-shadow: 0 0 0 3px rgba(0,63,135,0.1);
+            box-shadow: 0 0 0 4px rgba(0,63,135,0.1);
         }
 
         textarea {
@@ -196,15 +248,15 @@
         .rating-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
+            gap: 0.85rem;
             margin-top: 0.5rem;
         }
 
         .rating-btn {
-            padding: 1rem;
+            padding: 1.1rem;
             background: white;
             border: 3px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -214,33 +266,34 @@
         .rating-btn:hover {
             border-color: #003f87;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,63,135,0.15);
         }
 
         .rating-btn.selected {
             background: linear-gradient(135deg, #003f87, #002d5f);
             color: white;
             border-color: #003f87;
-            box-shadow: 0 4px 12px rgba(0,63,135,0.3);
+            box-shadow: 0 6px 16px rgba(0,63,135,0.35);
         }
 
         /* PRIMARY BUTTON */
         .btn-primary {
             width: 100%;
-            padding: 1.2rem;
+            padding: 1.3rem;
             background: linear-gradient(135deg, #003f87, #002d5f);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(0,63,135,0.3);
+            box-shadow: 0 6px 16px rgba(0,63,135,0.35);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,63,135,0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,63,135,0.45);
         }
 
         .btn-primary:disabled {
@@ -248,34 +301,165 @@
             cursor: not-allowed;
         }
 
-        /* BACK BUTTON */
-        .back-btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background: white;
-            color: #003f87;
-            border: 2px solid #003f87;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 1.5rem;
-            transition: all 0.2s;
-        }
-
-        .back-btn:hover {
-            background: #003f87;
-            color: white;
-        }
-
         /* SEARCH BOX */
         .search-box {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
             margin-bottom: 2rem;
         }
 
         .search-input {
             flex: 1;
+        }
+
+        .search-box .btn-primary {
+            width: auto;
+            min-width: 150px;
+        }
+
+        /* ENTRY CARDS */
+        .entry-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .entry-card:hover {
+            border-color: #003f87;
+            box-shadow: 0 8px 24px rgba(0,63,135,0.15);
+            transform: translateY(-4px);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px dashed #e2e8f0;
+        }
+
+        .entry-scholar {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #003f87;
+            margin-bottom: 0.5rem;
+        }
+
+        .entry-meta {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.3rem;
+        }
+
+        .entry-meta strong {
+            color: #003f87;
+        }
+
+        .subject-badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+
+        .subject-badge.math {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+        }
+
+        .subject-badge.ela {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+        }
+
+        .performance-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+        }
+
+        .performance-badge.beginning {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+        }
+
+        .performance-badge.progressing {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+        }
+
+        .performance-badge.proficient {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .performance-badge.needs-support {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+        }
+
+        .entry-details {
+            margin-top: 1rem;
+        }
+
+        .detail-row {
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .detail-row strong {
+            color: #003f87;
+            display: inline-block;
+            min-width: 140px;
+        }
+
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.3rem;
+            color: #003f87;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #003f87;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            display: block;
+            margin-bottom: 1.5rem;
         }
 
         /* TOAST */
@@ -286,12 +470,14 @@
             transform: translateX(-50%);
             background: #003f87;
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 8px;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
             font-weight: 600;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             z-index: 1000;
             transition: bottom 0.3s;
+            border: 3px solid #f0a500;
+            max-width: 90%;
         }
 
         .toast.show {
@@ -300,19 +486,55 @@
 
         .toast.success {
             background: #10b981;
+            border-color: #065f46;
         }
 
         .toast.error {
             background: #ef4444;
+            border-color: #991b1b;
         }
 
         .hidden {
             display: none !important;
         }
 
+        /* STATS HEADER */
+        .stats-header {
+            background: linear-gradient(135deg, rgba(0,63,135,0.08) 0%, rgba(240,165,0,0.08) 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .stat-badge {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            border-radius: 999px;
+            font-weight: 700;
+            color: #003f87;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+        }
+
         @media (min-width: 640px) {
             .rating-grid {
                 grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .entry-header {
+                flex-direction: column;
+            }
+            .breadcrumb {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
             }
         }
     </style>
@@ -323,26 +545,51 @@
     </div>
 
     <div class="container">
-        <!-- ROLE SELECTION -->
-        <div id="roleSelection" class="role-selection">
+        <!-- STEP 1: ROLE SELECTION -->
+        <div id="roleSelection" class="selection-screen">
             <h2>Welcome! Select Your Role</h2>
-            <p>Choose your role to get started</p>
+            <p>Choose your role to access the progress journal</p>
             
-            <div class="role-buttons">
-                <button class="role-btn" onclick="selectRole('tutor')">
-                    <span class="role-icon">👨‍🏫</span>
+            <div class="selection-buttons">
+                <button class="selection-btn" onclick="selectRole('tutor')">
+                    <span class="selection-icon">👨‍🏫</span>
                     Tutor
                 </button>
-                <button class="role-btn" onclick="selectRole('dual')">
-                    <span class="role-icon">👔</span>
+                <button class="selection-btn" onclick="selectRole('dual')">
+                    <span class="selection-icon">👔</span>
                     Dual Role / SC-IC
                 </button>
             </div>
         </div>
 
+        <!-- STEP 2: SUBJECT SELECTION (Tutor Only) -->
+        <div id="subjectSelection" class="selection-screen hidden">
+            <h2>Select Your Subject</h2>
+            <p>What subject will you be teaching today?</p>
+            
+            <div class="selection-buttons">
+                <button class="selection-btn" onclick="selectSubject('Math')">
+                    <span class="selection-icon">🔢</span>
+                    Math
+                </button>
+                <button class="selection-btn" onclick="selectSubject('ELA')">
+                    <span class="selection-icon">📚</span>
+                    ELA / Reading
+                </button>
+            </div>
+            
+            <button class="back-btn" style="margin-top:2rem" onclick="backToRole()">← Back to Role</button>
+        </div>
+
         <!-- TUTOR INTERFACE -->
         <div id="tutorInterface" class="main-interface">
-            <button class="back-btn" onclick="goBack()">← Change Role</button>
+            <div class="breadcrumb">
+                <div class="breadcrumb-path">
+                    Role: <strong id="currentRole">Tutor</strong> | 
+                    Subject: <strong id="currentSubject">-</strong>
+                </div>
+                <button class="back-btn" onclick="changeSubject()">Change Subject</button>
+            </div>
             
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('tutor', 'newEntry')">📝 New Entry</button>
@@ -354,12 +601,11 @@
                 <div id="tutorNewEntry" class="tab-pane active">
                     <h2 style="color:#003f87; margin-bottom:1.5rem">New Session Entry</h2>
                     
-                    <form id="tutorForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdq-NGsjByPn7n1_Zp8XZOa8NMk-laW5ba4CWH2OZuu6bTmJg/formResponse" 
-                          method="POST" target="hidden_iframe" onsubmit="return handleSubmit()">
+                    <form id="tutorForm" onsubmit="return submitForm(event)">
                         
                         <div class="form-group">
                             <label>Site *</label>
-                            <select name="entry.432100127" required>
+                            <select id="site" required>
                                 <option value="">Select Site</option>
                                 <option value="Central Jersey College Prep">Central Jersey College Prep</option>
                                 <option value="Clyde S Jennings Elementary School">Clyde S Jennings Elementary School</option>
@@ -391,7 +637,7 @@
 
                         <div class="form-group">
                             <label>Staff Role *</label>
-                            <select name="entry.529753040" required>
+                            <select id="staffRole" required>
                                 <option value="">Select Role</option>
                                 <option value="Tutor">Tutor</option>
                                 <option value="Substitute Tutor">Substitute Tutor</option>
@@ -400,40 +646,32 @@
 
                         <div class="form-group">
                             <label>Staff PIN *</label>
-                            <input type="text" name="entry.1508198938" placeholder="Your unique PIN" required>
-                            <small class="hint">🔐 Remember this PIN to view your history</small>
+                            <input type="text" id="staffPin" placeholder="Your unique PIN" required>
+                            <small class="hint">🔐 Save this PIN to view your history later</small>
                         </div>
 
                         <div class="form-group">
                             <label>Scholar Identifier *</label>
-                            <input type="text" name="entry.399783288" placeholder="e.g., 1234567890" required>
-                            <small class="hint">⚠️ Use ID or initials only - no full names</small>
+                            <input type="text" id="scholarId" placeholder="e.g., 1234567890" required>
+                            <small class="hint">⚠️ Use ID or initials - no full names</small>
                         </div>
 
                         <div class="form-group">
                             <label>Skill Area *</label>
-                            <select name="entry.529246954" required>
+                            <select id="skillArea" required>
                                 <option value="">Select Skill Area</option>
-                                <option value="ELA - Phonological Awareness">ELA - Phonological Awareness</option>
-                                <option value="ELA - Vocabulary">ELA - Vocabulary</option>
-                                <option value="ELA - High Frequency Words">ELA - High Frequency Words</option>
-                                <option value="Comprehension - Literature">Comprehension - Literature</option>
-                                <option value="Comprehension - Informational">Comprehension - Informational</option>
-                                <option value="Math - Number and Operations">Math - Number and Operations</option>
-                                <option value="Math - Algebra and Algebraic Thinking">Math - Algebra and Algebraic Thinking</option>
-                                <option value="Math - Geometry">Math - Geometry</option>
-                                <option value="Math - Measurement and Data">Math - Measurement and Data</option>
+                                <!-- Math or ELA options will be populated based on subject -->
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label>Specific Skill Target</label>
-                            <input type="text" name="entry.2011373215" placeholder="e.g., CVC blending">
+                            <input type="text" id="specificTarget" placeholder="e.g., CVC blending, addition facts">
                         </div>
 
                         <div class="form-group">
                             <label>Evidence Type *</label>
-                            <select name="entry.487463955" required>
+                            <select id="evidenceType" required>
                                 <option value="">Select Evidence Type</option>
                                 <option value="Exit Ticket">Exit Ticket</option>
                                 <option value="Oral reading">Oral reading</option>
@@ -451,83 +689,100 @@
                                 <div class="rating-btn" onclick="selectRating(this, 'Proficient')">Proficient</div>
                                 <div class="rating-btn" onclick="selectRating(this, 'Needs Support')">Needs Support</div>
                             </div>
-                            <input type="hidden" name="entry.1156765326" id="ratingValue" required>
+                            <input type="hidden" id="rating" required>
                         </div>
 
                         <div class="form-group">
                             <label>Session Notes (Optional)</label>
-                            <textarea name="entry.1749304715" placeholder="What happened in the session?"></textarea>
+                            <textarea id="notes" placeholder="What happened in the session? Key observations..."></textarea>
                         </div>
 
                         <div class="form-group">
                             <label>Evidence Image URL (Optional)</label>
-                            <input type="text" name="entry.503822953" placeholder="Paste image URL if you have one">
-                            <small class="hint">📸 Upload to Google Drive and paste the shareable link</small>
+                            <input type="text" id="imageUrl" placeholder="Paste Google Drive shareable link">
+                            <small class="hint">📸 Upload to Google Drive first, then paste link here</small>
                         </div>
 
-                        <button type="submit" class="btn-primary">💾 Save Entry</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <span id="submitText">💾 Save Entry</span>
+                        </button>
                     </form>
                 </div>
 
                 <!-- MY HISTORY TAB -->
                 <div id="tutorMyHistory" class="tab-pane">
-                    <h2 style="color:#003f87; margin-bottom:1.5rem">My History</h2>
-                    <p style="color:#64748b; margin-bottom:1.5rem">View your submissions in the Google Sheet</p>
+                    <h2 style="color:#003f87; margin-bottom:1rem">My Session History</h2>
+                    <p style="color:#64748b; margin-bottom:1.5rem">Enter your PIN to view your entries</p>
                     
-                    <a href="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit" 
-                       target="_blank" 
-                       class="btn-primary" 
-                       style="display:inline-block; text-align:center; text-decoration:none;">
-                        📊 View Google Sheet
-                    </a>
+                    <div class="search-box">
+                        <input type="text" id="myPin" class="search-input" placeholder="Enter your PIN">
+                        <button class="btn-primary" onclick="loadMyHistory()">🔍 Load History</button>
+                    </div>
+
+                    <div id="myHistoryResults"></div>
                 </div>
             </div>
         </div>
 
         <!-- DUAL ROLE INTERFACE -->
         <div id="dualInterface" class="main-interface">
-            <button class="back-btn" onclick="goBack()">← Change Role</button>
+            <div class="breadcrumb">
+                <div class="breadcrumb-path">
+                    Role: <strong>Dual Role / SC-IC</strong>
+                </div>
+                <button class="back-btn" onclick="backToRole()">← Change Role</button>
+            </div>
             
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('dual', 'searchPin')">🔐 Search by PIN</button>
                 <button class="tab" onclick="switchTab('dual', 'searchScholar')">👤 Search Scholar</button>
+                <button class="tab" onclick="switchTab('dual', 'searchSubject')">📚 By Subject</button>
             </div>
 
             <div class="content">
                 <!-- SEARCH BY PIN TAB -->
                 <div id="dualSearchPin" class="tab-pane active">
                     <h2 style="color:#003f87; margin-bottom:1rem">Search by Staff PIN</h2>
-                    <p style="color:#64748b; margin-bottom:1.5rem">Enter a tutor's PIN to view their entries</p>
+                    <p style="color:#64748b; margin-bottom:1.5rem">Enter a tutor's PIN to view their session entries</p>
                     
                     <div class="search-box">
                         <input type="text" id="pinSearch" class="search-input" placeholder="Enter Staff PIN">
-                        <button class="btn-primary" style="width:auto; min-width:150px" onclick="searchByPin()">🔍 Search</button>
+                        <button class="btn-primary" onclick="searchByPin()">🔍 Search</button>
                     </div>
                     
-                    <a href="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit" 
-                       target="_blank" 
-                       class="btn-primary" 
-                       style="display:inline-block; text-align:center; text-decoration:none; margin-top:1rem;">
-                        📊 View Full Google Sheet
-                    </a>
+                    <div id="pinResults"></div>
                 </div>
 
                 <!-- SEARCH SCHOLAR TAB -->
                 <div id="dualSearchScholar" class="tab-pane">
                     <h2 style="color:#003f87; margin-bottom:1rem">Search by Scholar ID</h2>
-                    <p style="color:#64748b; margin-bottom:1.5rem">Enter a scholar ID to view their progress</p>
+                    <p style="color:#64748b; margin-bottom:1.5rem">Enter a scholar ID to view their complete progress history</p>
                     
                     <div class="search-box">
                         <input type="text" id="scholarSearch" class="search-input" placeholder="Enter Scholar ID">
-                        <button class="btn-primary" style="width:auto; min-width:150px" onclick="searchByScholar()">🔍 Search</button>
+                        <button class="btn-primary" onclick="searchByScholar()">🔍 Search</button>
                     </div>
                     
-                    <a href="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit" 
-                       target="_blank" 
-                       class="btn-primary" 
-                       style="display:inline-block; text-align:center; text-decoration:none; margin-top:1rem;">
-                        📊 View Full Google Sheet
-                    </a>
+                    <div id="scholarResults"></div>
+                </div>
+
+                <!-- SEARCH BY SUBJECT TAB -->
+                <div id="dualSearchSubject" class="tab-pane">
+                    <h2 style="color:#003f87; margin-bottom:1rem">Filter by Subject</h2>
+                    <p style="color:#64748b; margin-bottom:1.5rem">View all entries for a specific subject</p>
+                    
+                    <div class="selection-buttons" style="max-width:600px; margin:0 auto">
+                        <button class="selection-btn" onclick="searchBySubject('Math')">
+                            <span class="selection-icon">🔢</span>
+                            Math Entries
+                        </button>
+                        <button class="selection-btn" onclick="searchBySubject('ELA')">
+                            <span class="selection-icon">📚</span>
+                            ELA Entries
+                        </button>
+                    </div>
+                    
+                    <div id="subjectResults"></div>
                 </div>
             </div>
         </div>
@@ -540,92 +795,350 @@
     <iframe name="hidden_iframe" style="display:none"></iframe>
 
     <script>
-        // ROLE SELECTION
+        // ===== CONFIGURATION =====
+        const SHEET_ID = '2PACX-1vQ1h4v_KQKa3NbQmnCxJDXJJ8OKJs6F3tC3YZBTlpPG4Jw6S-T6jYMi_dLkxr9M_p9BkHheNoDQNk6x';
+        const SHEET_GID = '1550692718';
+        
+        // Google Form entry IDs
+        const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSdq-NGsjByPn7n1_Zp8XZOa8NMk-laW5ba4CWH2OZuu6bTmJg/formResponse';
+        const ENTRY_IDS = {
+            site: 'entry.432100127',
+            staffRole: 'entry.529753040',
+            staffPin: 'entry.1508198938',
+            scholarId: 'entry.399783288',
+            skillArea: 'entry.529246954',
+            specificTarget: 'entry.2011373215',
+            evidenceType: 'entry.487463955',
+            rating: 'entry.1156765326',
+            notes: 'entry.1749304715',
+            imageUrl: 'entry.503822953'
+        };
+
+        // Skill areas by subject
+        const SKILLS = {
+            Math: [
+                'Math - Number and Operations',
+                'Math - Algebra and Algebraic Thinking',
+                'Math - Geometry',
+                'Math - Measurement and Data'
+            ],
+            ELA: [
+                'ELA - Phonological Awareness',
+                'ELA - Vocabulary',
+                'ELA - High Frequency Words',
+                'Comprehension - Literature',
+                'Comprehension - Informational'
+            ]
+        };
+
+        // State
+        let currentRole = '';
+        let currentSubject = '';
+
+        // ===== STEP 1: ROLE SELECTION =====
         function selectRole(role) {
+            currentRole = role;
             document.getElementById('roleSelection').classList.add('hidden');
             
             if (role === 'tutor') {
-                document.getElementById('tutorInterface').classList.add('active');
+                document.getElementById('subjectSelection').classList.remove('hidden');
             } else {
                 document.getElementById('dualInterface').classList.add('active');
             }
         }
 
-        function goBack() {
+        function backToRole() {
+            document.getElementById('subjectSelection').classList.add('hidden');
             document.getElementById('tutorInterface').classList.remove('active');
             document.getElementById('dualInterface').classList.remove('active');
             document.getElementById('roleSelection').classList.remove('hidden');
+            currentRole = '';
+            currentSubject = '';
         }
 
-        // TAB SWITCHING
+        // ===== STEP 2: SUBJECT SELECTION =====
+        function selectSubject(subject) {
+            currentSubject = subject;
+            document.getElementById('subjectSelection').classList.add('hidden');
+            document.getElementById('tutorInterface').classList.add('active');
+            document.getElementById('currentRole').textContent = 'Tutor';
+            document.getElementById('currentSubject').textContent = subject;
+            
+            // Populate skill areas based on subject
+            const skillSelect = document.getElementById('skillArea');
+            skillSelect.innerHTML = '<option value="">Select Skill Area</option>';
+            SKILLS[subject].forEach(skill => {
+                skillSelect.innerHTML += `<option value="${skill}">${skill}</option>`;
+            });
+        }
+
+        function changeSubject() {
+            document.getElementById('tutorInterface').classList.remove('active');
+            document.getElementById('subjectSelection').classList.remove('hidden');
+        }
+
+        // ===== TAB SWITCHING =====
         function switchTab(role, tab) {
             const prefix = role === 'tutor' ? 'tutor' : 'dual';
             const container = document.getElementById(`${prefix}Interface`);
             
-            // Update tab buttons
             container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Update tab panes
             container.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             const targetPane = tab.charAt(0).toUpperCase() + tab.slice(1);
             document.getElementById(`${prefix}${targetPane}`).classList.add('active');
         }
 
-        // RATING SELECTION
+        // ===== RATING SELECTION =====
         function selectRating(element, value) {
             document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
             element.classList.add('selected');
-            document.getElementById('ratingValue').value = value;
+            document.getElementById('rating').value = value;
         }
 
-        // FORM SUBMISSION
-        function handleSubmit() {
-            if (!document.getElementById('ratingValue').value) {
+        // ===== FORM SUBMISSION =====
+        function submitForm(event) {
+            event.preventDefault();
+            
+            if (!document.getElementById('rating').value) {
                 showToast('⚠️ Please select a performance rating', 'error');
                 return false;
             }
             
-            showToast('✅ Entry submitted successfully!', 'success');
+            const formData = new FormData();
+            formData.append(ENTRY_IDS.site, document.getElementById('site').value);
+            formData.append(ENTRY_IDS.staffRole, document.getElementById('staffRole').value);
+            formData.append(ENTRY_IDS.staffPin, document.getElementById('staffPin').value);
+            formData.append(ENTRY_IDS.scholarId, document.getElementById('scholarId').value);
+            formData.append(ENTRY_IDS.skillArea, document.getElementById('skillArea').value);
+            formData.append(ENTRY_IDS.specificTarget, document.getElementById('specificTarget').value);
+            formData.append(ENTRY_IDS.evidenceType, document.getElementById('evidenceType').value);
+            formData.append(ENTRY_IDS.rating, document.getElementById('rating').value);
+            formData.append(ENTRY_IDS.notes, document.getElementById('notes').value);
+            formData.append(ENTRY_IDS.imageUrl, document.getElementById('imageUrl').value);
             
-            setTimeout(() => {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            submitBtn.disabled = true;
+            submitText.textContent = '⏳ Saving...';
+            
+            fetch(FORM_ACTION, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: formData
+            }).then(() => {
+                showToast('✅ Entry saved successfully!', 'success');
                 document.getElementById('tutorForm').reset();
                 document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-            }, 1000);
+                
+                // Repopulate skill areas for current subject
+                const skillSelect = document.getElementById('skillArea');
+                skillSelect.innerHTML = '<option value="">Select Skill Area</option>';
+                SKILLS[currentSubject].forEach(skill => {
+                    skillSelect.innerHTML += `<option value="${skill}">${skill}</option>`;
+                });
+                
+                submitBtn.disabled = false;
+                submitText.textContent = '💾 Save Entry';
+            }).catch(() => {
+                showToast('✅ Entry saved!', 'success');
+                document.getElementById('tutorForm').reset();
+                document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+                
+                submitBtn.disabled = false;
+                submitText.textContent = '💾 Save Entry';
+            });
             
-            return true;
+            return false;
         }
 
-        // SEARCH FUNCTIONS
-        function searchByPin() {
-            const pin = document.getElementById('pinSearch').value;
+        // ===== FETCH FROM GOOGLE SHEETS =====
+        async function fetchSheetData() {
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${SHEET_GID}&single=true&output=csv`;
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                const rows = text.split('\n').map(row => {
+                    const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                    return matches ? matches.map(cell => cell.replace(/^"|"$/g, '')) : [];
+                });
+                
+                const entries = rows.slice(1).filter(row => row.length >= 11).map(row => ({
+                    timestamp: row[0] || '',
+                    site: row[1] || '',
+                    staffRole: row[2] || '',
+                    staffPin: row[3] || '',
+                    scholarId: row[4] || '',
+                    skillArea: row[5] || '',
+                    specificTarget: row[6] || '',
+                    evidenceType: row[7] || '',
+                    rating: row[8] || '',
+                    notes: row[9] || '',
+                    imageUrl: row[10] || ''
+                }));
+                
+                return entries;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showToast('❌ Error loading data. Please try again.', 'error');
+                return [];
+            }
+        }
+
+        // Helper function to determine subject from skill area
+        function getSubjectFromSkill(skillArea) {
+            if (skillArea.startsWith('Math')) return 'Math';
+            if (skillArea.startsWith('ELA') || skillArea.startsWith('Comprehension')) return 'ELA';
+            return 'Other';
+        }
+
+        // ===== MY HISTORY =====
+        async function loadMyHistory() {
+            const pin = document.getElementById('myPin').value.trim();
+            if (!pin) {
+                showToast('⚠️ Please enter your PIN', 'error');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('myHistoryResults');
+            resultsDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div><br>Loading your entries...</div>';
+            
+            const allEntries = await fetchSheetData();
+            const myEntries = allEntries.filter(e => e.staffPin === pin);
+            
+            if (myEntries.length > 0) {
+                displayEntries(myEntries, resultsDiv, `Your History (PIN: ${pin})`);
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <span class="empty-icon">📋</span>
+                        <h3>No entries found for PIN: ${pin}</h3>
+                        <p>Start by creating your first session entry!</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== SEARCH BY PIN =====
+        async function searchByPin() {
+            const pin = document.getElementById('pinSearch').value.trim();
             if (!pin) {
                 showToast('⚠️ Please enter a PIN', 'error');
                 return;
             }
             
-            // Open Google Sheet with filter instruction
-            showToast('✅ Opening Google Sheet - Use Filter to search PIN: ' + pin, 'success');
-            setTimeout(() => {
-                window.open('https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit', '_blank');
-            }, 1000);
+            const resultsDiv = document.getElementById('pinResults');
+            resultsDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div><br>Searching...</div>';
+            
+            const allEntries = await fetchSheetData();
+            const filtered = allEntries.filter(e => e.staffPin === pin);
+            
+            if (filtered.length > 0) {
+                displayEntries(filtered, resultsDiv, `Results for PIN: ${pin}`);
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <span class="empty-icon">🔐</span>
+                        <h3>No entries found for PIN: ${pin}</h3>
+                        <p>This PIN has no recorded sessions</p>
+                    </div>
+                `;
+            }
         }
 
-        function searchByScholar() {
-            const scholarId = document.getElementById('scholarSearch').value;
+        // ===== SEARCH BY SCHOLAR =====
+        async function searchByScholar() {
+            const scholarId = document.getElementById('scholarSearch').value.trim();
             if (!scholarId) {
                 showToast('⚠️ Please enter a Scholar ID', 'error');
                 return;
             }
             
-            // Open Google Sheet with filter instruction
-            showToast('✅ Opening Google Sheet - Use Filter to search Scholar: ' + scholarId, 'success');
-            setTimeout(() => {
-                window.open('https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit', '_blank');
-            }, 1000);
+            const resultsDiv = document.getElementById('scholarResults');
+            resultsDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div><br>Searching...</div>';
+            
+            const allEntries = await fetchSheetData();
+            const filtered = allEntries.filter(e => e.scholarId === scholarId);
+            
+            if (filtered.length > 0) {
+                displayEntries(filtered, resultsDiv, `Progress for Scholar: ${scholarId}`);
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <span class="empty-icon">👤</span>
+                        <h3>No entries found for Scholar: ${scholarId}</h3>
+                        <p>This scholar has no recorded sessions</p>
+                    </div>
+                `;
+            }
         }
 
-        // TOAST
+        // ===== SEARCH BY SUBJECT =====
+        async function searchBySubject(subject) {
+            const resultsDiv = document.getElementById('subjectResults');
+            resultsDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div><br>Loading entries...</div>';
+            
+            const allEntries = await fetchSheetData();
+            const filtered = allEntries.filter(e => getSubjectFromSkill(e.skillArea) === subject);
+            
+            if (filtered.length > 0) {
+                displayEntries(filtered, resultsDiv, `All ${subject} Entries`);
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <span class="empty-icon">📚</span>
+                        <h3>No ${subject} entries found</h3>
+                        <p>No sessions recorded for this subject yet</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== DISPLAY ENTRIES =====
+        function displayEntries(entries, container, title) {
+            const stats = `
+                <div class="stats-header">
+                    <h3 style="color:#003f87; margin:0">${title}</h3>
+                    <div class="stat-badge">📊 ${entries.length} ${entries.length === 1 ? 'Entry' : 'Entries'}</div>
+                </div>
+            `;
+            
+            const cards = entries.reverse().map(entry => {
+                const ratingClass = entry.rating.toLowerCase().replace(/\s+/g, '-');
+                const subject = getSubjectFromSkill(entry.skillArea);
+                const subjectClass = subject.toLowerCase();
+                
+                return `
+                    <div class="entry-card">
+                        <div class="entry-header">
+                            <div>
+                                <div class="entry-scholar">👤 ${entry.scholarId}</div>
+                                <div class="entry-meta">
+                                    <span class="subject-badge ${subjectClass}">${subject}</span>
+                                    <strong>Site:</strong> ${entry.site}
+                                </div>
+                                <div class="entry-meta"><strong>Staff:</strong> ${entry.staffRole} | 🔐 ${entry.staffPin}</div>
+                                <div class="entry-meta"><strong>Skill:</strong> ${entry.skillArea}</div>
+                                <span class="performance-badge ${ratingClass}">${entry.rating}</span>
+                            </div>
+                            <div style="text-align:right; font-size:0.85rem; color:#64748b">🕐 ${entry.timestamp}</div>
+                        </div>
+                        <div class="entry-details">
+                            ${entry.specificTarget ? `<div class="detail-row"><strong>🎯 Target:</strong> ${entry.specificTarget}</div>` : ''}
+                            <div class="detail-row"><strong>📋 Evidence:</strong> ${entry.evidenceType}</div>
+                            ${entry.notes ? `<div class="detail-row"><strong>💭 Notes:</strong> ${entry.notes}</div>` : ''}
+                            ${entry.imageUrl ? `<div class="detail-row"><strong>📸 Image:</strong> <a href="${entry.imageUrl}" target="_blank" style="color:#003f87">View Evidence</a></div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = stats + '<div class="entries-container">' + cards + '</div>';
+        }
+
+        // ===== TOAST =====
         function showToast(message, type) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
