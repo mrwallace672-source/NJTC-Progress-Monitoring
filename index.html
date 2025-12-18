@@ -2,38 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>NJTC Progress Journal | Premium Edition</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Top Navigation Bar -->
+    <!-- NJTC Header with Logo -->
     <header class="top-bar">
         <div class="container header-content">
-            <img src="assets/NJTC_LOGO.png" alt="NJTC Logo" class="logo-img">
-            <h1 class="logo-text">Progress Journal</h1>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" 
+                 alt="NJTC Logo" 
+                 class="logo-img"
+                 onerror="this.style.display='none'">
+            <h1 class="logo-text">NJTC Progress Journal</h1>
         </div>
     </header>
 
     <!-- Tab Navigation -->
     <nav class="tabs">
-        <button class="tab-btn active" data-tab="new-entry">📝 New Entry</button>
-        <button class="tab-btn" data-tab="shared-history">🔐 Shared History</button>
-        <button class="tab-btn" data-tab="scholar-lookup">👤 Scholar Lookup</button>
+        <button class="tab-btn active" data-tab="new-entry" type="button">📝 New Entry</button>
+        <button class="tab-btn" data-tab="pin-search" type="button">🔐 Search by PIN</button>
+        <button class="tab-btn" data-tab="scholar-search" type="button">👤 Search Scholar</button>
     </nav>
 
-    <!-- Main Content Container -->
+    <!-- Main Container -->
     <main class="container">
-        <!-- NEW ENTRY VIEW -->
+        
+        <!-- NEW ENTRY TAB -->
         <section id="new-entry" class="tab-content active">
             <div class="card">
                 <h2>📝 New Session Entry</h2>
-                <p class="subtitle">Record today's tutoring session feedback</p>
                 
                 <form id="entry-form">
-                    <!-- Site Selection - EXACT MATCH TO GOOGLE FORM -->
+                    <!-- Site -->
                     <div class="form-group">
                         <label for="site">Site *</label>
                         <select id="site" required>
@@ -66,7 +68,7 @@
                         </select>
                     </div>
 
-                    <!-- Staff Role - EXACT MATCH TO GOOGLE FORM -->
+                    <!-- Staff Role -->
                     <div class="form-group">
                         <label for="staffRole">Staff Role *</label>
                         <select id="staffRole" required>
@@ -79,23 +81,23 @@
                         </select>
                     </div>
 
-                    <!-- Staff PIN - Shared Access Key -->
+                    <!-- Staff PIN -->
                     <div class="form-group">
                         <label for="staffPin">Staff PIN *</label>
-                        <input type="text" id="staffPin" placeholder="Enter your shared PIN" required>
-                        <small class="hint">🔐 This PIN provides secure access to shared journal history</small>
+                        <input type="text" id="staffPin" placeholder="e.g., GLAW2025" required>
+                        <small class="hint">🔐 Dual Roles can search this PIN to see all entries</small>
                     </div>
 
-                    <!-- Scholar Identifier -->
+                    <!-- Scholar ID -->
                     <div class="form-group">
                         <label for="scholarId">Scholar Identifier *</label>
-                        <input type="text" id="scholarId" placeholder="e.g., 1234567890 or SC123" required>
-                        <small class="hint">⚠️ Use student ID or initials - no full names</small>
+                        <input type="text" id="scholarId" placeholder="e.g., 1234567890" required>
+                        <small class="hint">⚠️ Use ID or initials - no full names</small>
                     </div>
 
-                    <!-- Skill Area - EXACT MATCH TO GOOGLE FORM -->
+                    <!-- Skill Area -->
                     <div class="form-group">
-                        <label for="skillArea">Skill Area (high-level) *</label>
+                        <label for="skillArea">Skill Area *</label>
                         <select id="skillArea" required>
                             <option value="">Select Skill Area</option>
                             <option value="ELA - Phonological Awareness">ELA - Phonological Awareness</option>
@@ -110,13 +112,13 @@
                         </select>
                     </div>
 
-                    <!-- Specific Skill Target -->
+                    <!-- Specific Target -->
                     <div class="form-group">
                         <label for="specificSkillTarget">Specific Skill Target</label>
-                        <input type="text" id="specificSkillTarget" placeholder="e.g., CVC blending, addition facts">
+                        <input type="text" id="specificSkillTarget" placeholder="e.g., CVC blending">
                     </div>
 
-                    <!-- Evidence Type - EXACT MATCH TO GOOGLE FORM -->
+                    <!-- Evidence Type -->
                     <div class="form-group">
                         <label for="evidenceType">Evidence Type *</label>
                         <select id="evidenceType" required>
@@ -129,9 +131,9 @@
                         </select>
                     </div>
 
-                    <!-- Performance Rating - EXACT MATCH TO GOOGLE FORM -->
+                    <!-- Performance Rating -->
                     <div class="form-group">
-                        <label for="performanceRating">Performance Rating *</label>
+                        <label>Performance Rating *</label>
                         <div class="rating-buttons">
                             <button type="button" class="rating-btn" data-rating="Beginning">Beginning</button>
                             <button type="button" class="rating-btn" data-rating="Progressing">Progressing</button>
@@ -141,83 +143,73 @@
                         <input type="hidden" id="performanceRating" required>
                     </div>
 
-                    <!-- Optional Note -->
+                    <!-- Notes -->
                     <div class="form-group">
                         <label for="optionalNote">Session Notes (Optional)</label>
-                        <textarea id="optionalNote" rows="4" placeholder="What happened in the session? Key observations, challenges, wins..."></textarea>
+                        <textarea id="optionalNote" rows="4" placeholder="What happened? Key observations..."></textarea>
                     </div>
 
                     <!-- Image Upload -->
                     <div class="form-group">
-                        <label>Evidence Artifact (Optional)</label>
-                        <div class="image-upload">
-                            <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/jpg" style="display: none;">
-                            <button type="button" id="uploadBtn" class="btn-secondary">
-                                <span class="icon">📷</span> Choose Image
-                            </button>
-                            <div id="imagePreview" class="image-preview"></div>
-                        </div>
-                        <small class="hint">📁 Images are saved to "NJTC Progress Evidence" folder in Google Drive</small>
+                        <label>Evidence Photo (Optional)</label>
+                        <input type="file" id="imageUpload" accept="image/*" style="display:none">
+                        <button type="button" id="uploadBtn" class="btn-secondary">📷 Choose Image</button>
+                        <div id="imagePreview" class="image-preview" style="display:none"></div>
+                        <small class="hint">📁 Saves to "NJTC Progress Evidence" in Google Drive</small>
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- Submit -->
                     <button type="submit" id="submitBtn" class="btn-primary">
-                        <span class="btn-text">💾 Save Session Entry</span>
-                        <span class="btn-loader" style="display: none;">⏳ Saving...</span>
+                        <span class="btn-text">💾 Save Entry</span>
+                        <span class="btn-loader" style="display:none">⏳ Saving...</span>
                     </button>
                 </form>
             </div>
         </section>
 
-        <!-- SHARED HISTORY VIEW (PIN-BASED ACCESS) -->
-        <section id="shared-history" class="tab-content">
+        <!-- PIN SEARCH TAB -->
+        <section id="pin-search" class="tab-content">
             <div class="card">
-                <h2>🔐 Shared Journal History</h2>
-                <p class="subtitle">PIN-based secure workspace for Tutors & Dual Roles</p>
+                <h2>🔐 Search by PIN</h2>
+                <p class="subtitle">Dual Roles: Enter a PIN to see all entries</p>
                 
-                <div id="historyContent">
+                <div class="search-box">
+                    <input type="text" id="searchPin" placeholder="Enter PIN (e.g., GLAW2025)" class="search-input">
+                    <button id="pinSearchBtn" class="btn-primary">🔍 Search</button>
+                </div>
+
+                <div id="pinResults" class="results-container">
                     <div class="empty-state">
                         <span class="empty-icon">🔐</span>
-                        <p><strong>Secure Access</strong></p>
-                        <p>Submit an entry to establish your PIN credentials</p>
+                        <p>Enter a PIN above to search</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SCHOLAR LOOKUP VIEW -->
-        <section id="scholar-lookup" class="tab-content">
+        <!-- SCHOLAR SEARCH TAB -->
+        <section id="scholar-search" class="tab-content">
             <div class="card">
-                <h2>👤 Scholar Progress Lookup</h2>
-                <p class="subtitle">Track individual student progress across all sessions</p>
+                <h2>👤 Search by Scholar</h2>
+                <p class="subtitle">Track individual student progress</p>
                 
-                <div class="form-group">
-                    <label for="lookupScholarId">Scholar Identifier</label>
-                    <div class="search-input">
-                        <input type="text" id="lookupScholarId" placeholder="Enter scholar ID or initials">
-                        <button id="lookupBtn" class="btn-primary">🔍 Search</button>
-                    </div>
+                <div class="search-box">
+                    <input type="text" id="searchScholar" placeholder="Enter Scholar ID" class="search-input">
+                    <button id="scholarSearchBtn" class="btn-primary">🔍 Search</button>
                 </div>
 
-                <!-- Time Filters -->
-                <div class="filter-chips">
-                    <button class="filter-chip active" data-days="7">Last 7 days</button>
-                    <button class="filter-chip" data-days="14">Last 14 days</button>
-                    <button class="filter-chip" data-days="30">Last 30 days</button>
-                    <button class="filter-chip" data-days="all">All time</button>
-                </div>
-
-                <div id="scholarContent">
+                <div id="scholarResults" class="results-container">
                     <div class="empty-state">
-                        <span class="empty-icon">🔍</span>
-                        <p>Enter a scholar identifier to view their complete progress history</p>
+                        <span class="empty-icon">👤</span>
+                        <p>Enter a Scholar ID above to search</p>
                     </div>
                 </div>
             </div>
         </section>
+
     </main>
 
-    <!-- Toast Notification -->
+    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
     <!-- Scripts -->
