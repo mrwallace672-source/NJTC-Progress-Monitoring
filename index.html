@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>NJTC Progress Monitor</title>
+    <title>NJTC Progress Journal</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Top Navigation Bar -->
     <header class="top-bar">
-        <div class="container">
-            <h1 class="logo">NJTC Progress Monitor</h1>
+        <div class="container header-content">
+            <img src="assets/NJTC_LOGO.png" alt="NJTC Logo" class="logo-img">
+            <h1 class="logo-text">Progress Journal</h1>
         </div>
     </header>
 
@@ -28,7 +29,7 @@
         <!-- NEW ENTRY VIEW -->
         <section id="new-entry" class="tab-content active">
             <div class="card">
-                <h2>Create Progress Entry</h2>
+                <h2>New Journal Entry</h2>
                 
                 <form id="entry-form">
                     <!-- Site Selection -->
@@ -36,11 +37,30 @@
                         <label for="site">Site *</label>
                         <select id="site" required>
                             <option value="">Select Site</option>
-                            <option value="Site A">Site A</option>
-                            <option value="Site B">Site B</option>
-                            <option value="Site C">Site C</option>
-                            <option value="Site D">Site D</option>
-                            <option value="Site E">Site E</option>
+                            <option value="Central Jersey College Prep">Central Jersey College Prep</option>
+                            <option value="Clyde S Jennings Elementary School">Clyde S Jennings Elementary School</option>
+                            <option value="Crockett Middle School">Crockett Middle School</option>
+                            <option value="George E Wilson">George E Wilson</option>
+                            <option value="Global Leadership Academy">Global Leadership Academy</option>
+                            <option value="Greenwood">Greenwood</option>
+                            <option value="Grice Middle School">Grice Middle School</option>
+                            <option value="KlocknerKuser">KlocknerKuser</option>
+                            <option value="LEA - iLearn Bergen ES">LEA - iLearn Bergen ES</option>
+                            <option value="LEA - iLearn Bergen MS">LEA - iLearn Bergen MS</option>
+                            <option value="LEA - iLearn Clifton ES">LEA - iLearn Clifton ES</option>
+                            <option value="LEA - iLearn Clifton HS">LEA - iLearn Clifton HS</option>
+                            <option value="LEA - iLearn Clifton MS">LEA - iLearn Clifton MS</option>
+                            <option value="LEA - iLearn Hudson ES">LEA - iLearn Hudson ES</option>
+                            <option value="LEA - iLearn Hudson MS">LEA - iLearn Hudson MS</option>
+                            <option value="LEA - iLearn Passaic ES">LEA - iLearn Passaic ES</option>
+                            <option value="LEA - iLearn Passaic MS">LEA - iLearn Passaic MS</option>
+                            <option value="LEA - iLearn Paterson ES">LEA - iLearn Paterson ES</option>
+                            <option value="LEA - iLearn Paterson MS">LEA - iLearn Paterson MS</option>
+                            <option value="LEA - iLearn Paterson Silk City">LEA - iLearn Paterson Silk City</option>
+                            <option value="Stoy Elementary School">Stoy Elementary School</option>
+                            <option value="Strawbridge Elementary School">Strawbridge Elementary School</option>
+                            <option value="Thomas Edison Elementary School">Thomas Edison Elementary School</option>
+                            <option value="Van Sciver Elementary School">Van Sciver Elementary School</option>
                         </select>
                     </div>
 
@@ -50,9 +70,10 @@
                         <select id="staffRole" required>
                             <option value="">Select Role</option>
                             <option value="Tutor">Tutor</option>
+                            <option value="Lead Tutor">Lead Tutor</option>
+                            <option value="Site Leader">Site Leader</option>
                             <option value="Site Coordinator">Site Coordinator</option>
                             <option value="Program Manager">Program Manager</option>
-                            <option value="Instructional Coach">Instructional Coach</option>
                         </select>
                     </div>
 
