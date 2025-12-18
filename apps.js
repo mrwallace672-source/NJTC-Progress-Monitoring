@@ -10,7 +10,7 @@
 // ==========================================
 
 const CONFIG = {
-    API_BASE: 'https://script.google.com/macros/s/AKfycbwL5vkMmjGB4fjPBUyw6xD9OvB9CymjNPV5wIRXcSuEDBGWPKmKku0YIe43zA8mHZk3/exec',
+    API_BASE: 'https://script.google.com/macros/s/AKfycbyghqCTIYbtX32T5ZDotmkrEoAkBh5WK54DfSzXJ4p7ALZxUlInXcBwqYbW5RX3Tk-z/exec',
     SHARED_KEY: 'NJTC_INTERNAL_2025'
 };
 
