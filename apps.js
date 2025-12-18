@@ -1,7 +1,8 @@
 /**
- * NJTC Progress Journal - Application Logic
- * 100% ALIGNED WITH BACKEND
- * Version: 1.0 Production
+ * NJTC PROGRESS JOURNAL - PREMIUM EDITION
+ * Shared Tutor/Dual Role Workspace
+ * PIN-Based Secure Access
+ * Built by Impact Solutions Group LLC
  */
 
 // ==========================================
@@ -22,8 +23,10 @@ const state = {
     selectedRating: null,
     imageFile: null,
     imageBase64: null,
-    scholarHistoryData: [],
-    currentFilter: 7
+    sharedHistoryData: [],
+    currentFilter: 7,
+    currentPin: null,
+    currentSite: null
 };
 
 // ==========================================
@@ -35,9 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeForm();
     initializeImageUpload();
     initializeRatingButtons();
-    initializeHistoryView();
+    initializeSharedHistory();
     initializeScholarLookup();
+    initializeExport();
     loadSavedData();
+    
+    console.log('%c✓ NJTC Progress Journal PREMIUM', 'color: #003f87; font-weight: bold; font-size: 16px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);');
+    console.log('%c🏆 Best-in-Class Enterprise System', 'color: #f0a500; font-size: 14px; font-weight: bold;');
+    console.log('%c🔒 PIN-Based Secure Workspace', 'color: #10b981; font-size: 12px;');
 });
 
 // ==========================================
@@ -52,7 +60,6 @@ function initializeTabs() {
         btn.addEventListener('click', () => {
             const tabName = btn.dataset.tab;
 
-            // Update active states
             tabButtons.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
 
@@ -61,9 +68,9 @@ function initializeTabs() {
 
             state.currentTab = tabName;
 
-            // Load data when switching to history tabs
-            if (tabName === 'my-history') {
-                loadMyHistory();
+            // Load shared history when switching to that tab
+            if (tabName === 'shared-history') {
+                loadSharedHistory();
             }
         });
     });
@@ -79,9 +86,8 @@ function initializeForm() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Validate rating is selected
         if (!state.selectedRating) {
-            showToast('Please select a performance rating', 'error');
+            showToast('⚠️ Please select a performance rating', 'error');
             return;
         }
 
@@ -97,23 +103,17 @@ function initializeRatingButtons() {
             e.preventDefault();
             e.stopPropagation();
             
-            // Remove selected class from all buttons
             ratingButtons.forEach(b => b.classList.remove('selected'));
-
-            // Add selected class to clicked button
             btn.classList.add('selected');
 
-            // Update state and hidden input
             state.selectedRating = btn.dataset.rating;
             document.getElementById('performanceRating').value = state.selectedRating;
             
-            // Visual feedback
+            // Premium visual feedback
             btn.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 btn.style.transform = 'scale(1)';
             }, 150);
-            
-            console.log('Rating selected:', state.selectedRating);
         });
     });
 }
@@ -135,21 +135,18 @@ function initializeImageUpload() {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validate file type
         if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
-            showToast('Please select a JPG or PNG image', 'error');
+            showToast('⚠️ Please select JPG or PNG only', 'error');
             return;
         }
 
-        // Validate file size (10MB max)
         if (file.size > 10 * 1024 * 1024) {
-            showToast('Image must be less than 10MB', 'error');
+            showToast('⚠️ Image must be under 10MB', 'error');
             return;
         }
 
         state.imageFile = file;
 
-        // Convert to base64
         const reader = new FileReader();
         reader.onload = (event) => {
             state.imageBase64 = event.target.result;
@@ -163,8 +160,8 @@ function displayImagePreview(dataUrl) {
     const imagePreview = document.getElementById('imagePreview');
     imagePreview.innerHTML = `
         <div class="preview-container">
-            <img src="${dataUrl}" alt="Preview" class="preview-img">
-            <button type="button" class="remove-img" onclick="removeImage()">×</button>
+            <img src="${dataUrl}" alt="Evidence Preview" class="preview-img">
+            <button type="button" class="remove-img" onclick="removeImage()" title="Remove image">×</button>
         </div>
     `;
 }
@@ -186,14 +183,12 @@ async function submitEntry() {
     const btnLoader = submitBtn.querySelector('.btn-loader');
 
     try {
-        // Disable submit button
         submitBtn.disabled = true;
         btnText.style.display = 'none';
         btnLoader.style.display = 'inline';
 
-        // Gather form data - ALIGNED WITH BACKEND
         const data = {
-            key: CONFIG.SHARED_KEY,  // Backend expects 'key' in data
+            key: CONFIG.SHARED_KEY,
             site: document.getElementById('site').value,
             staffRole: document.getElementById('staffRole').value,
             staffPin: document.getElementById('staffPin').value,
@@ -205,41 +200,31 @@ async function submitEntry() {
             optionalNote: document.getElementById('optionalNote').value
         };
 
-        // Add image data if present
         if (state.imageBase64) {
             data.imageBase64 = state.imageBase64;
             data.imageFilename = state.imageFile.name;
             data.imageMimeType = state.imageFile.type;
         }
 
-        console.log('Submitting entry:', data);
-
-        // Save to localStorage
         saveFormData(data);
 
-        // Submit to backend - NO key in URL, key is in POST body
         const response = await fetch(CONFIG.API_BASE, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
 
         const result = await response.json();
-        console.log('Submission result:', result);
 
         if (result.status === 'success') {
-            showToast('✓ Journal entry saved successfully!', 'success');
+            showToast('✓ Session entry saved successfully!', 'success');
             resetForm();
             
-            // Ask if user wants to create another entry
             setTimeout(() => {
-                if (confirm('Entry saved! Create another entry?')) {
-                    // Form is already reset, just stay on this tab
+                if (confirm('✓ Entry saved!\n\nCreate another journal entry?')) {
+                    // Stay on form
                 } else {
-                    // Switch to history tab
-                    document.querySelector('[data-tab="my-history"]').click();
+                    document.querySelector('[data-tab="shared-history"]').click();
                 }
             }, 500);
         } else {
@@ -248,9 +233,8 @@ async function submitEntry() {
 
     } catch (error) {
         console.error('Submission error:', error);
-        showToast('Error saving entry: ' + error.message, 'error');
+        showToast('❌ Error saving entry: ' + error.message, 'error');
     } finally {
-        // Re-enable submit button
         submitBtn.disabled = false;
         btnText.style.display = 'inline';
         btnLoader.style.display = 'none';
@@ -264,7 +248,6 @@ function resetForm() {
     document.getElementById('performanceRating').value = '';
     removeImage();
     
-    // Keep site, role, and pin saved
     const saved = getSavedFormData();
     if (saved) {
         document.getElementById('site').value = saved.site || '';
@@ -274,30 +257,31 @@ function resetForm() {
 }
 
 // ==========================================
-// MY HISTORY VIEW
+// SHARED HISTORY (PIN-BASED ACCESS)
 // ==========================================
 
-function initializeHistoryView() {
-    // History view is loaded when tab is clicked
+function initializeSharedHistory() {
+    // Loaded when tab is clicked
 }
 
-async function loadMyHistory() {
+async function loadSharedHistory() {
     const historyContent = document.getElementById('historyContent');
     const saved = getSavedFormData();
-
-    console.log('Loading history for:', saved);
 
     if (!saved || !saved.site || !saved.staffPin) {
         historyContent.innerHTML = `
             <div class="empty-state">
-                <span class="empty-icon">📋</span>
-                <p>Please submit an entry first to view your history</p>
+                <span class="empty-icon">🔐</span>
+                <p><strong>Secure PIN Access Required</strong></p>
+                <p>Submit an entry first to establish your Site + PIN credentials</p>
             </div>
         `;
         return;
     }
 
-    // Show loading
+    state.currentPin = saved.staffPin;
+    state.currentSite = saved.site;
+
     historyContent.innerHTML = `
         <div class="loading-skeleton">
             <div class="skeleton-card"></div>
@@ -307,55 +291,71 @@ async function loadMyHistory() {
     `;
 
     try {
-        // ALIGNED: key in URL, path in URL
         const url = `${CONFIG.API_BASE}?key=${encodeURIComponent(CONFIG.SHARED_KEY)}&path=history&site=${encodeURIComponent(saved.site)}&staffPin=${encodeURIComponent(saved.staffPin)}`;
-        console.log('Fetching history:', url);
         
         const response = await fetch(url);
         const result = await response.json();
-        console.log('History result:', result);
 
         if (result.error) {
             throw new Error(result.error);
         }
 
-        if (result.entries && result.entries.length > 0) {
-            displayHistoryEntries(result.entries);
+        state.sharedHistoryData = result.entries || [];
+
+        if (state.sharedHistoryData.length > 0) {
+            displaySharedHistory(state.sharedHistoryData);
         } else {
             historyContent.innerHTML = `
                 <div class="empty-state">
-                    <span class="empty-icon">📋</span>
-                    <p>No entries found yet. Start by creating your first journal entry!</p>
+                    <span class="empty-icon">📝</span>
+                    <p><strong>No entries yet for PIN: ${saved.staffPin}</strong></p>
+                    <p>Start by creating your first journal entry!</p>
                 </div>
             `;
         }
     } catch (error) {
-        console.error('Error loading history:', error);
+        console.error('Error loading shared history:', error);
         historyContent.innerHTML = `
             <div class="empty-state">
                 <span class="empty-icon">⚠️</span>
-                <p>Error loading history: ${error.message}</p>
+                <p><strong>Error loading history</strong></p>
+                <p>${error.message}</p>
             </div>
         `;
     }
 }
 
-function displayHistoryEntries(entries) {
+function displaySharedHistory(entries) {
     const historyContent = document.getElementById('historyContent');
-    const html = entries.map((entry, index) => createEntryCard(entry, index)).join('');
-    historyContent.innerHTML = html;
+    
+    const headerHtml = `
+        <div class="history-header">
+            <div class="header-info">
+                <span class="pin-badge">🔐 PIN: ${state.currentPin}</span>
+                <span class="site-badge">📍 ${state.currentSite}</span>
+                <span class="count-badge">📋 ${entries.length} ${entries.length === 1 ? 'Entry' : 'Entries'}</span>
+            </div>
+            <button onclick="exportHistory()" class="btn-export">
+                <span>📊 Export to CSV</span>
+            </button>
+        </div>
+    `;
+    
+    const html = entries.map((entry, index) => createEntryCard(entry, index, true)).join('');
+    historyContent.innerHTML = headerHtml + html;
 
-    // Add click handlers to expand cards
     document.querySelectorAll('.entry-card').forEach((card) => {
-        card.addEventListener('click', () => {
-            const details = card.querySelector('.entry-details');
-            details.classList.toggle('expanded');
+        card.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('btn-export')) {
+                const details = card.querySelector('.entry-details');
+                details.classList.toggle('expanded');
+            }
         });
     });
 }
 
 // ==========================================
-// SCHOLAR LOOKUP VIEW
+// SCHOLAR LOOKUP
 // ==========================================
 
 function initializeScholarLookup() {
@@ -368,7 +368,7 @@ function initializeScholarLookup() {
         if (scholarId) {
             loadScholarHistory(scholarId);
         } else {
-            showToast('Please enter a scholar identifier', 'error');
+            showToast('⚠️ Please enter a scholar identifier', 'error');
         }
     });
 
@@ -379,16 +379,14 @@ function initializeScholarLookup() {
         }
     });
 
-    // Filter chips
     filterChips.forEach(chip => {
         chip.addEventListener('click', () => {
             filterChips.forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
             state.currentFilter = chip.dataset.days === 'all' ? 'all' : parseInt(chip.dataset.days);
             
-            // Re-filter if we have data
-            if (state.scholarHistoryData.length > 0) {
-                displayScholarEntries(state.scholarHistoryData);
+            if (state.sharedHistoryData.length > 0) {
+                displayScholarEntries(state.sharedHistoryData);
             }
         });
     });
@@ -398,14 +396,11 @@ async function loadScholarHistory(scholarId) {
     const scholarContent = document.getElementById('scholarContent');
     const saved = getSavedFormData();
 
-    console.log('Loading scholar history for:', scholarId, 'at site:', saved.site);
-
     if (!saved || !saved.site) {
-        showToast('Please submit an entry first to set your site', 'error');
+        showToast('⚠️ Please submit an entry first to set your site', 'error');
         return;
     }
 
-    // Show loading
     scholarContent.innerHTML = `
         <div class="loading-skeleton">
             <div class="skeleton-card"></div>
@@ -414,27 +409,24 @@ async function loadScholarHistory(scholarId) {
     `;
 
     try {
-        // ALIGNED: key in URL, path in URL
         const url = `${CONFIG.API_BASE}?key=${encodeURIComponent(CONFIG.SHARED_KEY)}&path=scholarHistory&site=${encodeURIComponent(saved.site)}&scholarId=${encodeURIComponent(scholarId)}`;
-        console.log('Fetching scholar history:', url);
         
         const response = await fetch(url);
         const result = await response.json();
-        console.log('Scholar history result:', result);
 
         if (result.error) {
             throw new Error(result.error);
         }
 
-        state.scholarHistoryData = result.entries || [];
+        state.sharedHistoryData = result.entries || [];
 
-        if (state.scholarHistoryData.length > 0) {
-            displayScholarEntries(state.scholarHistoryData);
+        if (state.sharedHistoryData.length > 0) {
+            displayScholarEntries(state.sharedHistoryData);
         } else {
             scholarContent.innerHTML = `
                 <div class="empty-state">
                     <span class="empty-icon">🔍</span>
-                    <p>No entries found for scholar "${scholarId}"</p>
+                    <p><strong>No entries found for scholar "${scholarId}"</strong></p>
                 </div>
             `;
         }
@@ -443,7 +435,8 @@ async function loadScholarHistory(scholarId) {
         scholarContent.innerHTML = `
             <div class="empty-state">
                 <span class="empty-icon">⚠️</span>
-                <p>Error loading scholar history: ${error.message}</p>
+                <p><strong>Error loading scholar history</strong></p>
+                <p>${error.message}</p>
             </div>
         `;
     }
@@ -452,7 +445,6 @@ async function loadScholarHistory(scholarId) {
 function displayScholarEntries(entries) {
     const scholarContent = document.getElementById('scholarContent');
     
-    // Apply time filter
     let filteredEntries = entries;
     if (state.currentFilter !== 'all') {
         const cutoffDate = new Date();
@@ -468,16 +460,15 @@ function displayScholarEntries(entries) {
         scholarContent.innerHTML = `
             <div class="empty-state">
                 <span class="empty-icon">📅</span>
-                <p>No entries in selected time period</p>
+                <p><strong>No entries in selected time period</strong></p>
             </div>
         `;
         return;
     }
 
-    const html = filteredEntries.map((entry, index) => createEntryCard(entry, index)).join('');
+    const html = filteredEntries.map((entry, index) => createEntryCard(entry, index, false)).join('');
     scholarContent.innerHTML = html;
 
-    // Add click handlers to expand cards
     document.querySelectorAll('.entry-card').forEach((card) => {
         card.addEventListener('click', () => {
             const details = card.querySelector('.entry-details');
@@ -490,62 +481,131 @@ function displayScholarEntries(entries) {
 // ENTRY CARD CREATION
 // ==========================================
 
-function createEntryCard(entry, index) {
+function createEntryCard(entry, index, showStaffInfo) {
     const date = new Date(entry.timestamp);
     const formattedDate = formatDate(date);
     const ratingClass = entry.performanceRating.toLowerCase().replace(/\s+/g, '-');
 
     return `
-        <div class="entry-card" data-index="${index}">
+        <div class="entry-card premium-card" data-index="${index}">
             <div class="entry-header">
                 <div>
-                    <div class="entry-title">Scholar ${entry.scholarId}</div>
-                    <div class="entry-meta">${entry.skillArea}</div>
+                    <div class="entry-title">👤 Scholar ${entry.scholarId}</div>
+                    <div class="entry-meta">📚 ${entry.skillArea}</div>
+                    ${showStaffInfo ? `<div class="entry-meta staff-info">👨‍🏫 ${entry.staffRole}${entry.staffPin ? ' | PIN: ' + entry.staffPin : ''}</div>` : ''}
                     <div class="performance-badge ${ratingClass}">
                         ${entry.performanceRating}
                     </div>
                 </div>
-                <div class="entry-meta">${formattedDate}</div>
+                <div class="entry-meta timestamp">🕐 ${formattedDate}</div>
             </div>
             
             <div class="entry-details">
                 ${entry.specificSkillTarget ? `
                     <div class="detail-row">
-                        <div class="detail-label">Specific Target</div>
+                        <div class="detail-label">🎯 Specific Target</div>
                         <div class="detail-value">${entry.specificSkillTarget}</div>
                     </div>
                 ` : ''}
                 
                 <div class="detail-row">
-                    <div class="detail-label">Evidence Type</div>
+                    <div class="detail-label">📋 Evidence Type</div>
                     <div class="detail-value">${entry.evidenceType}</div>
                 </div>
                 
                 ${entry.optionalNote ? `
                     <div class="detail-row">
-                        <div class="detail-label">Notes</div>
+                        <div class="detail-label">💭 Session Notes</div>
                         <div class="detail-value">${entry.optionalNote}</div>
                     </div>
                 ` : ''}
                 
-                ${entry.staffRole ? `
+                ${!showStaffInfo && entry.staffRole ? `
                     <div class="detail-row">
-                        <div class="detail-label">Staff Role</div>
+                        <div class="detail-label">👨‍🏫 Submitted By</div>
                         <div class="detail-value">${entry.staffRole}</div>
                     </div>
                 ` : ''}
                 
                 ${entry.evidenceImageUrl ? `
                     <div class="entry-image">
-                        <div class="detail-label">Evidence Image</div>
-                        <a href="${entry.evidenceImageUrl}" target="_blank" rel="noopener noreferrer">
+                        <div class="detail-label">📸 Evidence Artifact</div>
+                        <a href="${entry.evidenceImageUrl}" target="_blank" rel="noopener noreferrer" class="image-link">
                             <img src="${entry.evidenceImageUrl}" alt="Evidence" loading="lazy">
+                            <span class="view-badge">🔍 View Full Size</span>
                         </a>
                     </div>
                 ` : ''}
             </div>
         </div>
     `;
+}
+
+// ==========================================
+// EXPORT FUNCTIONALITY
+// ==========================================
+
+function initializeExport() {
+    // Export button initialized in displaySharedHistory
+}
+
+window.exportHistory = function() {
+    if (!state.sharedHistoryData || state.sharedHistoryData.length === 0) {
+        showToast('⚠️ No data to export', 'error');
+        return;
+    }
+
+    const csv = convertToCSV(state.sharedHistoryData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `NJTC_Progress_Journal_${state.currentPin}_${timestamp}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast('✓ Export completed successfully!', 'success');
+};
+
+function convertToCSV(data) {
+    const headers = [
+        'Timestamp',
+        'Site',
+        'Staff Role',
+        'Staff PIN',
+        'Scholar ID',
+        'Skill Area',
+        'Specific Target',
+        'Evidence Type',
+        'Performance Rating',
+        'Notes',
+        'Image URL'
+    ];
+    
+    const rows = data.map(entry => [
+        formatDateForExport(entry.timestamp),
+        entry.site,
+        entry.staffRole,
+        entry.staffPin,
+        entry.scholarId,
+        entry.skillArea,
+        entry.specificSkillTarget || '',
+        entry.evidenceType,
+        entry.performanceRating,
+        entry.optionalNote || '',
+        entry.evidenceImageUrl || ''
+    ]);
+    
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+    
+    return csvContent;
 }
 
 // ==========================================
@@ -568,15 +628,9 @@ function getSavedFormData() {
 
 function loadSavedData() {
     const saved = getSavedFormData();
-    if (saved.site) {
-        document.getElementById('site').value = saved.site;
-    }
-    if (saved.staffRole) {
-        document.getElementById('staffRole').value = saved.staffRole;
-    }
-    if (saved.staffPin) {
-        document.getElementById('staffPin').value = saved.staffPin;
-    }
+    if (saved.site) document.getElementById('site').value = saved.site;
+    if (saved.staffRole) document.getElementById('staffRole').value = saved.staffRole;
+    if (saved.staffPin) document.getElementById('staffPin').value = saved.staffPin;
 }
 
 // ==========================================
@@ -590,7 +644,7 @@ function showToast(message, type = 'success') {
 
     setTimeout(() => {
         toast.classList.remove('show');
-    }, 3000);
+    }, 3500);
 }
 
 // ==========================================
@@ -622,9 +676,8 @@ function formatDate(date) {
     }
 }
 
-// Make removeImage function globally accessible
-window.removeImage = removeImage;
+function formatDateForExport(date) {
+    return new Date(date).toLocaleString('en-US');
+}
 
-// Production ready indicator
-console.log('%c✓ NJTC Progress Journal v1.0', 'color: #003f87; font-weight: bold; font-size: 14px;');
-console.log('%c100% Aligned - All Systems Connected', 'color: #10b981; font-size: 12px;');
+window.removeImage = removeImage;
