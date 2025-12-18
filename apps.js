@@ -1,712 +1,598 @@
-/* ==========================================
-   NJTC Progress Monitor - Premium Styles
-   Mobile-First, Clean, Modern Design
-   ========================================== */
+/**
+ * NJTC Progress Monitor - Application Logic
+ * Vanilla JavaScript - Mobile-First
+ */
 
-:root {
-    /* Colors - NJTC Branded */
-    --primary: #003f87;
-    --primary-dark: #002d5f;
-    --primary-light: #1a5fa3;
-    --accent: #f0a500;
-    --secondary: #64748b;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --error: #ef4444;
-    --background: #f8fafc;
-    --surface: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border: #e2e8f0;
-    --shadow: rgba(0, 0, 0, 0.08);
+// ==========================================
+// CONFIGURATION
+// ==========================================
+
+const CONFIG = {
+    API_BASE: 'PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE', // e.g., 'https://script.google.com/macros/s/ABC123.../exec'
+    NJTC_KEY: 'PASTE_YOUR_SHARED_KEY_HERE' // Must match the key in Apps Script
+};
+
+// ==========================================
+// STATE MANAGEMENT
+// ==========================================
+
+const state = {
+    currentTab: 'new-entry',
+    selectedRating: null,
+    imageFile: null,
+    imageBase64: null,
+    scholarHistoryData: [],
+    currentFilter: 7
+};
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeTabs();
+    initializeForm();
+    initializeImageUpload();
+    initializeRatingButtons();
+    initializeHistoryView();
+    initializeScholarLookup();
+    loadSavedData();
+});
+
+// ==========================================
+// TAB NAVIGATION
+// ==========================================
+
+function initializeTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabName = btn.dataset.tab;
+
+            // Update active states
+            tabButtons.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+
+            btn.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            state.currentTab = tabName;
+
+            // Load data when switching to history tabs
+            if (tabName === 'my-history') {
+                loadMyHistory();
+            }
+        });
+    });
+}
+
+// ==========================================
+// FORM INITIALIZATION
+// ==========================================
+
+function initializeForm() {
+    const form = document.getElementById('entry-form');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Validate rating is selected
+        if (!state.selectedRating) {
+            showToast('Please select a performance rating', 'error');
+            return;
+        }
+
+        await submitEntry();
+    });
+}
+
+function initializeRatingButtons() {
+    const ratingButtons = document.querySelectorAll('.rating-btn');
+
+    ratingButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent any form submission
+            
+            // Remove selected class from all buttons
+            ratingButtons.forEach(b => b.classList.remove('selected'));
+
+            // Add selected class to clicked button
+            btn.classList.add('selected');
+
+            // Update state and hidden input
+            state.selectedRating = btn.dataset.rating;
+            document.getElementById('performanceRating').value = state.selectedRating;
+            
+            // Visual feedback
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 150);
+        });
+    });
+}
+
+// ==========================================
+// IMAGE UPLOAD
+// ==========================================
+
+function initializeImageUpload() {
+    const uploadBtn = document.getElementById('uploadBtn');
+    const imageUpload = document.getElementById('imageUpload');
+    const imagePreview = document.getElementById('imagePreview');
+
+    uploadBtn.addEventListener('click', () => {
+        imageUpload.click();
+    });
+
+    imageUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+            showToast('Please select a JPG or PNG image', 'error');
+            return;
+        }
+
+        // Validate file size (10MB max)
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('Image must be less than 10MB', 'error');
+            return;
+        }
+
+        state.imageFile = file;
+
+        // Convert to base64
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            state.imageBase64 = event.target.result;
+            displayImagePreview(event.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function displayImagePreview(dataUrl) {
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.innerHTML = `
+        <div class="preview-container">
+            <img src="${dataUrl}" alt="Preview" class="preview-img">
+            <button type="button" class="remove-img" onclick="removeImage()">×</button>
+        </div>
+    `;
+}
+
+function removeImage() {
+    state.imageFile = null;
+    state.imageBase64 = null;
+    document.getElementById('imagePreview').innerHTML = '';
+    document.getElementById('imageUpload').value = '';
+}
+
+// ==========================================
+// FORM SUBMISSION
+// ==========================================
+
+async function submitEntry() {
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+
+    try {
+        // Disable submit button
+        submitBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoader.style.display = 'inline';
+
+        // Gather form data
+        const data = {
+            site: document.getElementById('site').value,
+            staffRole: document.getElementById('staffRole').value,
+            staffPin: document.getElementById('staffPin').value,
+            scholarId: document.getElementById('scholarId').value,
+            skillArea: document.getElementById('skillArea').value,
+            specificSkillTarget: document.getElementById('specificSkillTarget').value,
+            evidenceType: document.getElementById('evidenceType').value,
+            performanceRating: state.selectedRating,
+            optionalNote: document.getElementById('optionalNote').value
+        };
+
+        // Add image data if present
+        if (state.imageBase64) {
+            data.imageBase64 = state.imageBase64;
+            data.imageFilename = state.imageFile.name;
+            data.imageMimeType = state.imageFile.type;
+        }
+
+        // Save to localStorage
+        saveFormData(data);
+
+        // Submit to backend
+        const response = await fetch(`${CONFIG.API_BASE}?path=submit&key=${CONFIG.NJTC_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            showToast('✓ Entry saved successfully!', 'success');
+            resetForm();
+            
+            // Ask if user wants to create another entry
+            setTimeout(() => {
+                if (confirm('Entry saved! Create another entry?')) {
+                    // Form is already reset, just stay on this tab
+                } else {
+                    // Switch to history tab
+                    document.querySelector('[data-tab="my-history"]').click();
+                }
+            }, 500);
+        } else {
+            throw new Error(result.error || 'Failed to save entry');
+        }
+
+    } catch (error) {
+        console.error('Submission error:', error);
+        showToast('Error saving entry. Please try again.', 'error');
+    } finally {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+    }
+}
+
+function resetForm() {
+    document.getElementById('entry-form').reset();
+    document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+    state.selectedRating = null;
+    removeImage();
     
-    /* Spacing */
-    --spacing-xs: 0.5rem;
-    --spacing-sm: 0.75rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
+    // Keep site, role, and pin saved
+    const saved = getSavedFormData();
+    if (saved) {
+        document.getElementById('site').value = saved.site || '';
+        document.getElementById('staffRole').value = saved.staffRole || '';
+        document.getElementById('staffPin').value = saved.staffPin || '';
+    }
+}
+
+// ==========================================
+// MY HISTORY VIEW
+// ==========================================
+
+function initializeHistoryView() {
+    // History view is loaded when tab is clicked
+}
+
+async function loadMyHistory() {
+    const historyContent = document.getElementById('historyContent');
+    const saved = getSavedFormData();
+
+    if (!saved || !saved.site || !saved.staffPin) {
+        historyContent.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">📋</span>
+                <p>Please submit an entry first to view your history</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Show loading
+    historyContent.innerHTML = `
+        <div class="loading-skeleton">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(
+            `${CONFIG.API_BASE}?path=history&key=${CONFIG.NJTC_KEY}&site=${encodeURIComponent(saved.site)}&staffPin=${encodeURIComponent(saved.staffPin)}`
+        );
+        const result = await response.json();
+
+        if (result.entries && result.entries.length > 0) {
+            displayHistoryEntries(result.entries);
+        } else {
+            historyContent.innerHTML = `
+                <div class="empty-state">
+                    <span class="empty-icon">📋</span>
+                    <p>No entries found yet</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading history:', error);
+        historyContent.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">⚠️</span>
+                <p>Error loading history. Please try again.</p>
+            </div>
+        `;
+    }
+}
+
+function displayHistoryEntries(entries) {
+    const historyContent = document.getElementById('historyContent');
+    const html = entries.map((entry, index) => createEntryCard(entry, index)).join('');
+    historyContent.innerHTML = html;
+
+    // Add click handlers to expand cards
+    document.querySelectorAll('.entry-card').forEach((card, index) => {
+        card.addEventListener('click', () => {
+            const details = card.querySelector('.entry-details');
+            details.classList.toggle('expanded');
+        });
+    });
+}
+
+// ==========================================
+// SCHOLAR LOOKUP VIEW
+// ==========================================
+
+function initializeScholarLookup() {
+    const lookupBtn = document.getElementById('lookupBtn');
+    const lookupInput = document.getElementById('lookupScholarId');
+    const filterChips = document.querySelectorAll('.filter-chip');
+
+    lookupBtn.addEventListener('click', () => {
+        const scholarId = lookupInput.value.trim();
+        if (scholarId) {
+            loadScholarHistory(scholarId);
+        } else {
+            showToast('Please enter a scholar identifier', 'error');
+        }
+    });
+
+    lookupInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            lookupBtn.click();
+        }
+    });
+
+    // Filter chips
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            filterChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            state.currentFilter = chip.dataset.days === 'all' ? 'all' : parseInt(chip.dataset.days);
+            
+            // Re-filter if we have data
+            if (state.scholarHistoryData.length > 0) {
+                displayScholarEntries(state.scholarHistoryData);
+            }
+        });
+    });
+}
+
+async function loadScholarHistory(scholarId) {
+    const scholarContent = document.getElementById('scholarContent');
+    const saved = getSavedFormData();
+
+    if (!saved || !saved.site) {
+        showToast('Please submit an entry first to set your site', 'error');
+        return;
+    }
+
+    // Show loading
+    scholarContent.innerHTML = `
+        <div class="loading-skeleton">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(
+            `${CONFIG.API_BASE}?path=scholarHistory&key=${CONFIG.NJTC_KEY}&site=${encodeURIComponent(saved.site)}&scholarId=${encodeURIComponent(scholarId)}`
+        );
+        const result = await response.json();
+
+        state.scholarHistoryData = result.entries || [];
+
+        if (state.scholarHistoryData.length > 0) {
+            displayScholarEntries(state.scholarHistoryData);
+        } else {
+            scholarContent.innerHTML = `
+                <div class="empty-state">
+                    <span class="empty-icon">🔍</span>
+                    <p>No entries found for scholar "${scholarId}"</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading scholar history:', error);
+        scholarContent.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">⚠️</span>
+                <p>Error loading scholar history. Please try again.</p>
+            </div>
+        `;
+    }
+}
+
+function displayScholarEntries(entries) {
+    const scholarContent = document.getElementById('scholarContent');
     
-    /* Border Radius */
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-    
-    /* Typography */
-    --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-
-/* ==========================================
-   RESET & BASE
-   ========================================== */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-    font-family: var(--font-primary);
-    background: var(--background);
-    color: var(--text-primary);
-    line-height: 1.6;
-    padding-bottom: 2rem;
-    min-height: 100vh;
-}
-
-/* ==========================================
-   TOP BAR
-   ========================================== */
-
-.top-bar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: var(--spacing-sm) 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 1px 3px var(--shadow);
-}
-
-.header-content {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-}
-
-.logo-img {
-    height: 40px;
-    width: auto;
-}
-
-.logo-text {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--primary);
-    letter-spacing: -0.02em;
-    margin: 0;
-}
-
-.logo {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary);
-    letter-spacing: -0.02em;
-}
-
-/* ==========================================
-   CONTAINER
-   ========================================== */
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-md);
-}
-
-/* ==========================================
-   TABS NAVIGATION
-   ========================================== */
-
-.tabs {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    position: sticky;
-    top: 52px;
-    z-index: 99;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.tab-btn {
-    flex: 1;
-    min-width: 100px;
-    padding: var(--spacing-md);
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-}
-
-.tab-btn:active {
-    background: var(--background);
-}
-
-.tab-btn.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
-}
-
-/* ==========================================
-   TAB CONTENT
-   ========================================== */
-
-.tab-content {
-    display: none;
-    padding-top: var(--spacing-lg);
-    animation: fadeIn 0.3s ease;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+    // Apply time filter
+    let filteredEntries = entries;
+    if (state.currentFilter !== 'all') {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - state.currentFilter);
+        
+        filteredEntries = entries.filter(entry => {
+            const entryDate = new Date(entry.timestamp);
+            return entryDate >= cutoffDate;
+        });
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    if (filteredEntries.length === 0) {
+        scholarContent.innerHTML = `
+            <div class="empty-state">
+                <span class="empty-icon">📅</span>
+                <p>No entries in selected time period</p>
+            </div>
+        `;
+        return;
+    }
+
+    const html = filteredEntries.map((entry, index) => createEntryCard(entry, index)).join('');
+    scholarContent.innerHTML = html;
+
+    // Add click handlers to expand cards
+    document.querySelectorAll('.entry-card').forEach((card, index) => {
+        card.addEventListener('click', () => {
+            const details = card.querySelector('.entry-details');
+            details.classList.toggle('expanded');
+        });
+    });
+}
+
+// ==========================================
+// ENTRY CARD CREATION
+// ==========================================
+
+function createEntryCard(entry, index) {
+    const date = new Date(entry.timestamp);
+    const formattedDate = formatDate(date);
+    const ratingClass = entry.performanceRating.toLowerCase().replace(/\s+/g, '-');
+
+    return `
+        <div class="entry-card" data-index="${index}">
+            <div class="entry-header">
+                <div>
+                    <div class="entry-title">Scholar ${entry.scholarId}</div>
+                    <div class="entry-meta">${entry.skillArea}</div>
+                    <div class="performance-badge ${ratingClass}">
+                        ${entry.performanceRating}
+                    </div>
+                </div>
+                <div class="entry-meta">${formattedDate}</div>
+            </div>
+            
+            <div class="entry-details">
+                ${entry.specificSkillTarget ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Specific Target</div>
+                        <div class="detail-value">${entry.specificSkillTarget}</div>
+                    </div>
+                ` : ''}
+                
+                <div class="detail-row">
+                    <div class="detail-label">Evidence Type</div>
+                    <div class="detail-value">${entry.evidenceType}</div>
+                </div>
+                
+                ${entry.optionalNote ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Notes</div>
+                        <div class="detail-value">${entry.optionalNote}</div>
+                    </div>
+                ` : ''}
+                
+                ${entry.staffRole ? `
+                    <div class="detail-row">
+                        <div class="detail-label">Staff Role</div>
+                        <div class="detail-value">${entry.staffRole}</div>
+                    </div>
+                ` : ''}
+                
+                ${entry.evidenceImageUrl ? `
+                    <div class="entry-image">
+                        <div class="detail-label">Evidence Image</div>
+                        <a href="${entry.evidenceImageUrl}" target="_blank">
+                            <img src="${entry.evidenceImageUrl}" alt="Evidence" loading="lazy">
+                        </a>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// ==========================================
+// LOCAL STORAGE
+// ==========================================
+
+function saveFormData(data) {
+    localStorage.setItem('njtc_site', data.site);
+    localStorage.setItem('njtc_staffRole', data.staffRole);
+    localStorage.setItem('njtc_staffPin', data.staffPin);
+}
+
+function getSavedFormData() {
+    return {
+        site: localStorage.getItem('njtc_site'),
+        staffRole: localStorage.getItem('njtc_staffRole'),
+        staffPin: localStorage.getItem('njtc_staffPin')
+    };
+}
+
+function loadSavedData() {
+    const saved = getSavedFormData();
+    if (saved.site) {
+        document.getElementById('site').value = saved.site;
+    }
+    if (saved.staffRole) {
+        document.getElementById('staffRole').value = saved.staffRole;
+    }
+    if (saved.staffPin) {
+        document.getElementById('staffPin').value = saved.staffPin;
     }
 }
 
-/* ==========================================
-   CARD
-   ========================================== */
+// ==========================================
+// TOAST NOTIFICATIONS
+// ==========================================
 
-.card {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    box-shadow: 0 1px 3px var(--shadow);
-    margin-bottom: var(--spacing-lg);
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast ${type} show`;
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
 }
 
-.card h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-xs);
-    color: var(--text-primary);
-}
+// ==========================================
+// UTILITY FUNCTIONS
+// ==========================================
 
-.subtitle {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-bottom: var(--spacing-lg);
-}
+function formatDate(date) {
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-/* ==========================================
-   FORM ELEMENTS
-   ========================================== */
-
-.form-group {
-    margin-bottom: var(--spacing-lg);
-}
-
-label {
-    display: block;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-xs);
-    font-size: 0.9rem;
-}
-
-input[type="text"],
-input[type="number"],
-select,
-textarea {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-family: var(--font-primary);
-    background: var(--surface);
-    color: var(--text-primary);
-    transition: all 0.2s ease;
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-input:hover,
-select:hover,
-textarea:hover {
-    border-color: var(--primary-light);
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 63, 135, 0.1);
-}
-
-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    padding-right: 2.5rem;
-}
-
-textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-.hint {
-    display: block;
-    margin-top: var(--spacing-xs);
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-/* ==========================================
-   RATING BUTTONS
-   ========================================== */
-
-.rating-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-xs);
-}
-
-.rating-btn {
-    padding: var(--spacing-md);
-    border: 2px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.rating-btn:hover {
-    border-color: var(--primary);
-    background: rgba(37, 99, 235, 0.05);
-}
-
-.rating-btn:active {
-    transform: scale(0.98);
-}
-
-.rating-btn.selected {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-    box-shadow: 0 2px 8px rgba(0, 63, 135, 0.3);
-}
-
-/* ==========================================
-   IMAGE UPLOAD
-   ========================================== */
-
-.image-upload {
-    margin-top: var(--spacing-xs);
-}
-
-.image-preview {
-    margin-top: var(--spacing-md);
-}
-
-.preview-container {
-    position: relative;
-    display: inline-block;
-}
-
-.preview-img {
-    max-width: 100%;
-    height: auto;
-    border-radius: var(--radius-md);
-    box-shadow: 0 2px 8px var(--shadow);
-}
-
-.remove-img {
-    position: absolute;
-    top: var(--spacing-xs);
-    right: var(--spacing-xs);
-    background: var(--error);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease;
-}
-
-.remove-img:active {
-    transform: scale(0.95);
-}
-
-/* ==========================================
-   BUTTONS
-   ========================================== */
-
-.btn-primary,
-.btn-secondary {
-    width: 100%;
-    padding: var(--spacing-md);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-xs);
-    -webkit-tap-highlight-color: transparent;
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 63, 135, 0.25);
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 4px 12px rgba(0, 63, 135, 0.3);
-}
-
-.btn-primary:active {
-    transform: scale(0.98);
-}
-
-.btn-primary:disabled {
-    background: var(--secondary);
-    cursor: not-allowed;
-    opacity: 0.6;
-    box-shadow: none;
-}
-
-.btn-secondary {
-    background: var(--surface);
-    color: var(--text-primary);
-    border: 2px solid var(--border);
-}
-
-.btn-secondary:hover {
-    border-color: var(--primary);
-    background: rgba(0, 63, 135, 0.05);
-}
-
-.btn-secondary:active {
-    background: var(--background);
-    transform: scale(0.98);
-}
-
-/* ==========================================
-   HISTORY & SCHOLAR CARDS
-   ========================================== */
-
-.entry-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.entry-card:hover {
-    border-color: var(--primary-light);
-    box-shadow: 0 2px 8px var(--shadow);
-}
-
-.entry-card:active {
-    transform: scale(0.99);
-    box-shadow: 0 2px 8px var(--shadow);
-}
-
-.entry-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--spacing-sm);
-}
-
-.entry-title {
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 1rem;
-}
-
-.entry-meta {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xs);
-}
-
-.performance-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-top: var(--spacing-xs);
-}
-
-.performance-badge.beginning {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.performance-badge.progressing {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.performance-badge.proficient {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.performance-badge.needs-support {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.entry-details {
-    display: none;
-    margin-top: var(--spacing-md);
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--border);
-}
-
-.entry-details.expanded {
-    display: block;
-    animation: slideDown 0.2s ease;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-    }
-    to {
-        opacity: 1;
-        max-height: 500px;
+    if (days === 0) {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        if (hours === 0) {
+            const minutes = Math.floor(diff / (1000 * 60));
+            return minutes === 0 ? 'Just now' : `${minutes}m ago`;
+        }
+        return `${hours}h ago`;
+    } else if (days === 1) {
+        return 'Yesterday';
+    } else if (days < 7) {
+        return `${days}d ago`;
+    } else {
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+        });
     }
 }
 
-.detail-row {
-    margin-bottom: var(--spacing-sm);
-}
-
-.detail-label {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-}
-
-.detail-value {
-    font-size: 0.95rem;
-    color: var(--text-primary);
-    margin-top: 0.25rem;
-}
-
-.entry-image {
-    margin-top: var(--spacing-sm);
-}
-
-.entry-image img {
-    max-width: 100%;
-    height: auto;
-    border-radius: var(--radius-md);
-    box-shadow: 0 2px 8px var(--shadow);
-}
-
-/* ==========================================
-   SEARCH INPUT
-   ========================================== */
-
-.search-input {
-    display: flex;
-    gap: var(--spacing-sm);
-}
-
-.search-input input {
-    flex: 1;
-}
-
-.search-input .btn-primary {
-    width: auto;
-    min-width: 100px;
-}
-
-/* ==========================================
-   FILTER CHIPS
-   ========================================== */
-
-.filter-chips {
-    display: flex;
-    gap: var(--spacing-xs);
-    margin: var(--spacing-lg) 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.filter-chip {
-    padding: var(--spacing-xs) var(--spacing-md);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--surface);
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.filter-chip:active {
-    transform: scale(0.98);
-}
-
-.filter-chip.active {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-
-/* ==========================================
-   EMPTY STATE
-   ========================================== */
-
-.empty-state {
-    text-align: center;
-    padding: var(--spacing-xl);
-    color: var(--text-secondary);
-}
-
-.empty-icon {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: var(--spacing-md);
-}
-
-/* ==========================================
-   LOADING SKELETON
-   ========================================== */
-
-.loading-skeleton {
-    padding: var(--spacing-md) 0;
-}
-
-.skeleton-card {
-    height: 120px;
-    background: linear-gradient(
-        90deg,
-        var(--border) 0%,
-        #f1f5f9 50%,
-        var(--border) 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-md);
-}
-
-@keyframes shimmer {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -200% 0;
-    }
-}
-
-/* ==========================================
-   TOAST NOTIFICATION
-   ========================================== */
-
-.toast {
-    position: fixed;
-    bottom: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--text-primary);
-    color: white;
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    font-weight: 500;
-    max-width: 90%;
-    text-align: center;
-    z-index: 1000;
-    transition: bottom 0.3s ease;
-}
-
-.toast.show {
-    bottom: var(--spacing-lg);
-}
-
-.toast.success {
-    background: var(--success);
-}
-
-.toast.error {
-    background: var(--error);
-}
-
-/* ==========================================
-   RESPONSIVE ADJUSTMENTS
-   ========================================== */
-
-@media (min-width: 640px) {
-    .rating-buttons {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    .card {
-        padding: var(--spacing-xl);
-    }
-}
-
-@media (min-width: 768px) {
-    .container {
-        padding: 0 var(--spacing-lg);
-    }
-    
-    .logo-img {
-        height: 45px;
-    }
-    
-    .logo-text {
-        font-size: 1.3rem;
-    }
-    
-    .tabs {
-        top: 57px;
-    }
-}
-
-/* ==========================================
-   UTILITY CLASSES
-   ========================================== */
-
-.hidden {
-    display: none !important;
-}
-
-.icon {
-    font-size: 1.2rem;
-}
+// Make removeImage function globally accessible
+window.removeImage = removeImage;
