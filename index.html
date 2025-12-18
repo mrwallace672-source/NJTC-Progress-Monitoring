@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJTC Progress Journal | Premium Secure Edition</title>
+    <title>NJTC Progress Journal | Fixed Version</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -14,7 +14,6 @@
             min-height: 100vh;
         }
 
-        /* HEADER */
         .header {
             background: linear-gradient(135deg, #003f87 0%, #002d5f 100%);
             padding: 1.5rem;
@@ -38,7 +37,6 @@
             padding: 0 1rem;
         }
 
-        /* SELECTION SCREENS */
         .selection-screen {
             background: white;
             border-radius: 16px;
@@ -90,7 +88,6 @@
             margin-bottom: 1rem;
         }
 
-        /* MAIN INTERFACE */
         .main-interface {
             display: none;
         }
@@ -105,7 +102,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* BREADCRUMB */
         .breadcrumb {
             background: white;
             padding: 1rem 1.5rem;
@@ -144,7 +140,6 @@
             transform: translateX(-4px);
         }
 
-        /* TABS */
         .tabs {
             background: white;
             border-radius: 16px 16px 0 0;
@@ -179,7 +174,6 @@
             background: rgba(0,63,135,0.08);
         }
 
-        /* CONTENT */
         .content {
             background: white;
             border-radius: 0 0 16px 16px;
@@ -202,7 +196,6 @@
             to { opacity: 1; }
         }
 
-        /* FORM */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -244,7 +237,6 @@
             display: block;
         }
 
-        /* RATING BUTTONS */
         .rating-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -276,7 +268,6 @@
             box-shadow: 0 6px 16px rgba(0,63,135,0.35);
         }
 
-        /* PRIMARY BUTTON */
         .btn-primary {
             width: 100%;
             padding: 1.3rem;
@@ -301,7 +292,6 @@
             cursor: not-allowed;
         }
 
-        /* SEARCH BOX */
         .search-box {
             display: flex;
             gap: 1rem;
@@ -317,7 +307,6 @@
             min-width: 150px;
         }
 
-        /* ENTRY CARDS */
         .entry-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border: 2px solid #e2e8f0;
@@ -426,7 +415,6 @@
             min-width: 140px;
         }
 
-        /* LOADING */
         .loading {
             text-align: center;
             padding: 3rem;
@@ -449,7 +437,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* EMPTY STATE */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -462,7 +449,17 @@
             margin-bottom: 1.5rem;
         }
 
-        /* TOAST */
+        .debug-info {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #0c4a6e;
+        }
+
         .toast {
             position: fixed;
             bottom: -100px;
@@ -498,7 +495,6 @@
             display: none !important;
         }
 
-        /* STATS HEADER */
         .stats-header {
             background: linear-gradient(135deg, rgba(0,63,135,0.08) 0%, rgba(240,165,0,0.08) 100%);
             border-radius: 12px;
@@ -545,7 +541,7 @@
     </div>
 
     <div class="container">
-        <!-- STEP 1: ROLE SELECTION -->
+        <!-- ROLE SELECTION -->
         <div id="roleSelection" class="selection-screen">
             <h2>Welcome! Select Your Role</h2>
             <p>Choose your role to access the progress journal</p>
@@ -562,7 +558,7 @@
             </div>
         </div>
 
-        <!-- STEP 2: SUBJECT SELECTION (Tutor Only) -->
+        <!-- SUBJECT SELECTION -->
         <div id="subjectSelection" class="selection-screen hidden">
             <h2>Select Your Subject</h2>
             <p>What subject will you be teaching today?</p>
@@ -660,7 +656,6 @@
                             <label>Skill Area *</label>
                             <select id="skillArea" required>
                                 <option value="">Select Skill Area</option>
-                                <!-- Math or ELA options will be populated based on subject -->
                             </select>
                         </div>
 
@@ -791,13 +786,12 @@
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
-    <!-- Hidden iframe for form submission -->
     <iframe name="hidden_iframe" style="display:none"></iframe>
 
     <script>
         // ===== CONFIGURATION =====
-        const SHEET_ID = '2PACX-1vQ1h4v_KQKa3NbQmnCxJDXJJ8OKJs6F3tC3YZBTlpPG4Jw6S-T6jYMi_dLkxr9M_p9BkHheNoDQNk6x';
-        const SHEET_GID = '1550692718';
+        // YOUR SHEET ID - From the published URL
+        const SHEET_ID = '1pTgSKfWVFQ5TdKH_DXFpcx1FU5y10Ztw_A8-ufM6W6w';
         
         // Google Form entry IDs
         const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSdq-NGsjByPn7n1_Zp8XZOa8NMk-laW5ba4CWH2OZuu6bTmJg/formResponse';
@@ -831,11 +825,10 @@
             ]
         };
 
-        // State
         let currentRole = '';
         let currentSubject = '';
 
-        // ===== STEP 1: ROLE SELECTION =====
+        // ===== ROLE SELECTION =====
         function selectRole(role) {
             currentRole = role;
             document.getElementById('roleSelection').classList.add('hidden');
@@ -856,7 +849,7 @@
             currentSubject = '';
         }
 
-        // ===== STEP 2: SUBJECT SELECTION =====
+        // ===== SUBJECT SELECTION =====
         function selectSubject(subject) {
             currentSubject = subject;
             document.getElementById('subjectSelection').classList.add('hidden');
@@ -864,7 +857,6 @@
             document.getElementById('currentRole').textContent = 'Tutor';
             document.getElementById('currentSubject').textContent = subject;
             
-            // Populate skill areas based on subject
             const skillSelect = document.getElementById('skillArea');
             skillSelect.innerHTML = '<option value="">Select Skill Area</option>';
             SKILLS[subject].forEach(skill => {
@@ -928,11 +920,10 @@
                 mode: 'no-cors',
                 body: formData
             }).then(() => {
-                showToast('✅ Entry saved successfully!', 'success');
+                showToast('✅ Entry saved! Wait 2 seconds, then check history.', 'success');
                 document.getElementById('tutorForm').reset();
                 document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
                 
-                // Repopulate skill areas for current subject
                 const skillSelect = document.getElementById('skillArea');
                 skillSelect.innerHTML = '<option value="">Select Skill Area</option>';
                 SKILLS[currentSubject].forEach(skill => {
@@ -942,7 +933,7 @@
                 submitBtn.disabled = false;
                 submitText.textContent = '💾 Save Entry';
             }).catch(() => {
-                showToast('✅ Entry saved!', 'success');
+                showToast('✅ Entry saved! Wait 2 seconds, then check history.', 'success');
                 document.getElementById('tutorForm').reset();
                 document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
                 
@@ -956,38 +947,49 @@
         // ===== FETCH FROM GOOGLE SHEETS =====
         async function fetchSheetData() {
             try {
-                const url = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${SHEET_GID}&single=true&output=csv`;
+                // Using Google Sheets JSON API
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Form%20Responses%201`;
+                
+                console.log('Fetching from:', url);
+                
                 const response = await fetch(url);
                 const text = await response.text();
                 
-                const rows = text.split('\n').map(row => {
-                    const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-                    return matches ? matches.map(cell => cell.replace(/^"|"$/g, '')) : [];
-                });
+                // Extract JSON from response (it's wrapped in a function call)
+                const jsonText = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\);/);
+                if (!jsonText) {
+                    throw new Error('Could not parse response');
+                }
                 
-                const entries = rows.slice(1).filter(row => row.length >= 11).map(row => ({
-                    timestamp: row[0] || '',
-                    site: row[1] || '',
-                    staffRole: row[2] || '',
-                    staffPin: row[3] || '',
-                    scholarId: row[4] || '',
-                    skillArea: row[5] || '',
-                    specificTarget: row[6] || '',
-                    evidenceType: row[7] || '',
-                    rating: row[8] || '',
-                    notes: row[9] || '',
-                    imageUrl: row[10] || ''
+                const json = JSON.parse(jsonText[1]);
+                console.log('Parsed data:', json);
+                
+                const rows = json.table.rows;
+                const entries = rows.map(row => ({
+                    timestamp: row.c[0]?.f || row.c[0]?.v || '',
+                    site: row.c[1]?.v || '',
+                    staffRole: row.c[2]?.v || '',
+                    staffPin: row.c[3]?.v || '',
+                    scholarId: row.c[4]?.v || '',
+                    skillArea: row.c[5]?.v || '',
+                    specificTarget: row.c[6]?.v || '',
+                    evidenceType: row.c[7]?.v || '',
+                    rating: row.c[8]?.v || '',
+                    notes: row.c[9]?.v || '',
+                    imageUrl: row.c[10]?.v || ''
                 }));
+                
+                console.log('Found', entries.length, 'entries');
+                console.log('Sample entry:', entries[0]);
                 
                 return entries;
             } catch (error) {
                 console.error('Error fetching data:', error);
-                showToast('❌ Error loading data. Please try again.', 'error');
+                showToast('❌ Error loading data. Check console for details.', 'error');
                 return [];
             }
         }
 
-        // Helper function to determine subject from skill area
         function getSubjectFromSkill(skillArea) {
             if (skillArea.startsWith('Math')) return 'Math';
             if (skillArea.startsWith('ELA') || skillArea.startsWith('Comprehension')) return 'ELA';
@@ -1006,16 +1008,32 @@
             resultsDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div><br>Loading your entries...</div>';
             
             const allEntries = await fetchSheetData();
-            const myEntries = allEntries.filter(e => e.staffPin === pin);
+            console.log('All entries:', allEntries);
+            console.log('Searching for PIN:', pin);
+            
+            const myEntries = allEntries.filter(e => {
+                console.log('Comparing:', e.staffPin, '===', pin, '→', e.staffPin === pin);
+                return e.staffPin === pin;
+            });
+            
+            console.log('Found', myEntries.length, 'matching entries');
             
             if (myEntries.length > 0) {
                 displayEntries(myEntries, resultsDiv, `Your History (PIN: ${pin})`);
             } else {
                 resultsDiv.innerHTML = `
+                    <div class="debug-info">
+                        🔍 DEBUG INFO:<br>
+                        - Searched for PIN: "${pin}"<br>
+                        - Total entries in sheet: ${allEntries.length}<br>
+                        - All PINs found: ${[...new Set(allEntries.map(e => e.staffPin))].join(', ')}<br>
+                        <br>
+                        ⚠️ Make sure your PIN matches exactly (case-sensitive!)
+                    </div>
                     <div class="empty-state">
                         <span class="empty-icon">📋</span>
                         <h3>No entries found for PIN: ${pin}</h3>
-                        <p>Start by creating your first session entry!</p>
+                        <p>Check the debug info above - PINs are case-sensitive!</p>
                     </div>
                 `;
             }
@@ -1143,7 +1161,7 @@
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = `toast ${type} show`;
-            setTimeout(() => toast.classList.remove('show'), 3500);
+            setTimeout(() => toast.classList.remove('show'), 4000);
         }
     </script>
 </body>
