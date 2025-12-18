@@ -1,6 +1,7 @@
 /**
- * NJTC Progress Monitor - Application Logic
- * Vanilla JavaScript - Mobile-First
+ * NJTC Progress Journal - Application Logic
+ * Premium Mobile-First Design
+ * Version: 1.0 Production
  */
 
 // ==========================================
@@ -8,8 +9,8 @@
 // ==========================================
 
 const CONFIG = {
-API_BASE: 'https://script.google.com/macros/s/AKfycbwL5vkMmjGB4fjPBUyw6xD9OvB9CymjNPV5wIRXcSuEDBGWPKmKku0YIe43zA8mHZk3/exec',
-NJTC_KEY: 'NJTC_INTERNAL_2025'
+    API_BASE: 'https://script.google.com/macros/s/AKfycbwL5vkMmjGB4fjPBUyw6xD9OvB9CymjNPV5wIRXcSuEDBGWPKmKku0YIe43zA8mHZk3/exec',
+    NJTC_KEY: 'NJTC_INTERNAL_2025'
 };
 
 // ==========================================
@@ -94,6 +95,7 @@ function initializeRatingButtons() {
     ratingButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault(); // Prevent any form submission
+            e.stopPropagation(); // Stop event bubbling
             
             // Remove selected class from all buttons
             ratingButtons.forEach(b => b.classList.remove('selected'));
@@ -105,12 +107,23 @@ function initializeRatingButtons() {
             state.selectedRating = btn.dataset.rating;
             document.getElementById('performanceRating').value = state.selectedRating;
             
-            // Visual feedback
+            // Premium visual feedback with animation
             btn.style.transform = 'scale(0.95)';
             setTimeout(() => {
-                btn.style.transform = '';
+                btn.style.transform = 'scale(1)';
             }, 150);
         });
+        
+        // Add touch feedback for mobile
+        btn.addEventListener('touchstart', () => {
+            btn.style.transform = 'scale(0.95)';
+        }, { passive: true });
+        
+        btn.addEventListener('touchend', () => {
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 150);
+        }, { passive: true });
     });
 }
 
@@ -121,9 +134,9 @@ function initializeRatingButtons() {
 function initializeImageUpload() {
     const uploadBtn = document.getElementById('uploadBtn');
     const imageUpload = document.getElementById('imageUpload');
-    const imagePreview = document.getElementById('imagePreview');
 
-    uploadBtn.addEventListener('click', () => {
+    uploadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         imageUpload.click();
     });
 
@@ -222,7 +235,7 @@ async function submitEntry() {
         const result = await response.json();
 
         if (result.status === 'success') {
-            showToast('✓ Entry saved successfully!', 'success');
+            showToast('✓ Journal entry saved successfully!', 'success');
             resetForm();
             
             // Ask if user wants to create another entry
@@ -240,7 +253,7 @@ async function submitEntry() {
 
     } catch (error) {
         console.error('Submission error:', error);
-        showToast('Error saving entry. Please try again.', 'error');
+        showToast('Error saving entry. Please check connection and try again.', 'error');
     } finally {
         // Re-enable submit button
         submitBtn.disabled = false;
@@ -253,6 +266,7 @@ function resetForm() {
     document.getElementById('entry-form').reset();
     document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
     state.selectedRating = null;
+    document.getElementById('performanceRating').value = '';
     removeImage();
     
     // Keep site, role, and pin saved
@@ -307,7 +321,7 @@ async function loadMyHistory() {
             historyContent.innerHTML = `
                 <div class="empty-state">
                     <span class="empty-icon">📋</span>
-                    <p>No entries found yet</p>
+                    <p>No entries found yet. Start by creating your first journal entry!</p>
                 </div>
             `;
         }
@@ -316,7 +330,7 @@ async function loadMyHistory() {
         historyContent.innerHTML = `
             <div class="empty-state">
                 <span class="empty-icon">⚠️</span>
-                <p>Error loading history. Please try again.</p>
+                <p>Error loading history. Please check your connection and try again.</p>
             </div>
         `;
     }
@@ -328,7 +342,7 @@ function displayHistoryEntries(entries) {
     historyContent.innerHTML = html;
 
     // Add click handlers to expand cards
-    document.querySelectorAll('.entry-card').forEach((card, index) => {
+    document.querySelectorAll('.entry-card').forEach((card) => {
         card.addEventListener('click', () => {
             const details = card.querySelector('.entry-details');
             details.classList.toggle('expanded');
@@ -356,6 +370,7 @@ function initializeScholarLookup() {
 
     lookupInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             lookupBtn.click();
         }
     });
@@ -450,7 +465,7 @@ function displayScholarEntries(entries) {
     scholarContent.innerHTML = html;
 
     // Add click handlers to expand cards
-    document.querySelectorAll('.entry-card').forEach((card, index) => {
+    document.querySelectorAll('.entry-card').forEach((card) => {
         card.addEventListener('click', () => {
             const details = card.querySelector('.entry-details');
             details.classList.toggle('expanded');
@@ -510,7 +525,7 @@ function createEntryCard(entry, index) {
                 ${entry.evidenceImageUrl ? `
                     <div class="entry-image">
                         <div class="detail-label">Evidence Image</div>
-                        <a href="${entry.evidenceImageUrl}" target="_blank">
+                        <a href="${entry.evidenceImageUrl}" target="_blank" rel="noopener noreferrer">
                             <img src="${entry.evidenceImageUrl}" alt="Evidence" loading="lazy">
                         </a>
                     </div>
@@ -596,3 +611,7 @@ function formatDate(date) {
 
 // Make removeImage function globally accessible
 window.removeImage = removeImage;
+
+// Production ready indicator
+console.log('%c✓ NJTC Progress Journal v1.0', 'color: #003f87; font-weight: bold; font-size: 14px;');
+console.log('%cPremium Edition - Built by Impact Solutions Group', 'color: #f0a500; font-size: 12px;');
