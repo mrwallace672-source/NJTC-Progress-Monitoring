@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>NJTC Progress Monitor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="top-bar">
+        <div class="container">
+            <h1 class="logo">NJTC Progress Monitor</h1>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tabs">
+        <button class="tab-btn active" data-tab="new-entry">New Entry</button>
+        <button class="tab-btn" data-tab="my-history">My History</button>
+        <button class="tab-btn" data-tab="scholar-lookup">Scholar Lookup</button>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="container">
+        <!-- NEW ENTRY VIEW -->
+        <section id="new-entry" class="tab-content active">
+            <div class="card">
+                <h2>Create Progress Entry</h2>
+                
+                <form id="entry-form">
+                    <!-- Site Selection -->
+                    <div class="form-group">
+                        <label for="site">Site *</label>
+                        <select id="site" required>
+                            <option value="">Select Site</option>
+                            <option value="Site A">Site A</option>
+                            <option value="Site B">Site B</option>
+                            <option value="Site C">Site C</option>
+                            <option value="Site D">Site D</option>
+                            <option value="Site E">Site E</option>
+                        </select>
+                    </div>
+
+                    <!-- Staff Role -->
+                    <div class="form-group">
+                        <label for="staffRole">Staff Role *</label>
+                        <select id="staffRole" required>
+                            <option value="">Select Role</option>
+                            <option value="Tutor">Tutor</option>
+                            <option value="Site Coordinator">Site Coordinator</option>
+                            <option value="Program Manager">Program Manager</option>
+                            <option value="Instructional Coach">Instructional Coach</option>
+                        </select>
+                    </div>
+
+                    <!-- Staff PIN -->
+                    <div class="form-group">
+                        <label for="staffPin">Staff PIN *</label>
+                        <input type="text" id="staffPin" placeholder="Enter your PIN" required>
+                    </div>
+
+                    <!-- Scholar Identifier -->
+                    <div class="form-group">
+                        <label for="scholarId">Scholar Identifier *</label>
+                        <input type="text" id="scholarId" placeholder="e.g., SC123 or initials" required>
+                        <small class="hint">⚠️ Do not use full student names. Use ID or initials only.</small>
+                    </div>
+
+                    <!-- Skill Area -->
+                    <div class="form-group">
+                        <label for="skillArea">Skill Area *</label>
+                        <select id="skillArea" required>
+                            <option value="">Select Skill Area</option>
+                            <option value="Reading Comprehension">Reading Comprehension</option>
+                            <option value="Phonics & Decoding">Phonics & Decoding</option>
+                            <option value="Fluency">Fluency</option>
+                            <option value="Writing">Writing</option>
+                            <option value="Math Computation">Math Computation</option>
+                            <option value="Math Problem Solving">Math Problem Solving</option>
+                            <option value="Executive Function">Executive Function</option>
+                            <option value="Social-Emotional">Social-Emotional</option>
+                        </select>
+                    </div>
+
+                    <!-- Specific Skill Target -->
+                    <div class="form-group">
+                        <label for="specificSkillTarget">Specific Skill Target</label>
+                        <input type="text" id="specificSkillTarget" placeholder="e.g., Main idea identification">
+                    </div>
+
+                    <!-- Evidence Type -->
+                    <div class="form-group">
+                        <label for="evidenceType">Evidence Type *</label>
+                        <select id="evidenceType" required>
+                            <option value="">Select Evidence Type</option>
+                            <option value="Work Sample">Work Sample</option>
+                            <option value="Observation">Observation</option>
+                            <option value="Assessment">Assessment</option>
+                            <option value="Student Demonstration">Student Demonstration</option>
+                            <option value="Discussion">Discussion</option>
+                        </select>
+                    </div>
+
+                    <!-- Performance Rating -->
+                    <div class="form-group">
+                        <label for="performanceRating">Performance Rating *</label>
+                        <div class="rating-buttons">
+                            <button type="button" class="rating-btn" data-rating="Beginning">Beginning</button>
+                            <button type="button" class="rating-btn" data-rating="Progressing">Progressing</button>
+                            <button type="button" class="rating-btn" data-rating="Proficient">Proficient</button>
+                            <button type="button" class="rating-btn" data-rating="Needs Support">Needs Support</button>
+                        </div>
+                        <input type="hidden" id="performanceRating" required>
+                    </div>
+
+                    <!-- Optional Note -->
+                    <div class="form-group">
+                        <label for="optionalNote">Notes (Optional)</label>
+                        <textarea id="optionalNote" rows="3" placeholder="Additional observations or context..."></textarea>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="form-group">
+                        <label>Evidence Image (Optional)</label>
+                        <div class="image-upload">
+                            <input type="file" id="imageUpload" accept="image/jpeg,image/png,image/jpg" style="display: none;">
+                            <button type="button" id="uploadBtn" class="btn-secondary">
+                                <span class="icon">📷</span> Choose Image
+                            </button>
+                            <div id="imagePreview" class="image-preview"></div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="btn-primary">
+                        <span class="btn-text">Save Entry</span>
+                        <span class="btn-loader" style="display: none;">⏳ Saving...</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- MY HISTORY VIEW -->
+        <section id="my-history" class="tab-content">
+            <div class="card">
+                <h2>My Recent Entries</h2>
+                <p class="subtitle">Last 10 entries you've submitted</p>
+                
+                <div id="historyContent">
+                    <div class="loading-skeleton">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCHOLAR LOOKUP VIEW -->
+        <section id="scholar-lookup" class="tab-content">
+            <div class="card">
+                <h2>Scholar Progress Lookup</h2>
+                
+                <div class="form-group">
+                    <label for="lookupScholarId">Scholar Identifier</label>
+                    <div class="search-input">
+                        <input type="text" id="lookupScholarId" placeholder="Enter scholar ID or initials">
+                        <button id="lookupBtn" class="btn-primary">Search</button>
+                    </div>
+                </div>
+
+                <!-- Time Filters -->
+                <div class="filter-chips">
+                    <button class="filter-chip active" data-days="7">Last 7 days</button>
+                    <button class="filter-chip" data-days="14">Last 14 days</button>
+                    <button class="filter-chip" data-days="30">Last 30 days</button>
+                    <button class="filter-chip" data-days="all">All time</button>
+                </div>
+
+                <div id="scholarContent">
+                    <div class="empty-state">
+                        <span class="empty-icon">🔍</span>
+                        <p>Enter a scholar identifier to view their progress history</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
